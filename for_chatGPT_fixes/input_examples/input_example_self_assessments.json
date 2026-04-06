@@ -1,0 +1,341 @@
+[
+  {
+    "assessment_file_name": "suslov.xlsx",
+    "self_assessments": [
+      {
+        "employee_id": "87654321",
+        "full_name": "суслов_дмитрий_сергеевич",
+        "role": "qa_engineer",
+        "assessments": [
+          {
+            "assessment_date": "2026-03-01",
+            "items": [
+              {
+                "competency_id": "работа_с_базами_данных",
+                "self_selected_level": 1,
+                "self_comment": "",
+                "manager_selected_level": 1,
+                "manager_comment": "почему не средний?"
+              },
+              {
+                "competency_id": "работа_с_инструментами_чтения_логов_и_мониторинга",
+                "self_selected_level": 1,
+                "self_comment": "",
+                "manager_selected_level": 1,
+                "manager_comment": "openshift, kafka"
+              },
+              {
+                "competency_id": "работа_с_ci/cd",
+                "self_selected_level": "not_applicable",
+                "self_comment": "",
+                "manager_selected_level": "no_experience",
+                "manager_comment": "чатбот по jenkins поставкам"
+              },
+              {
+                "competency_id": "работа_с_заглушками",
+                "self_selected_level": 1,
+                "self_comment": "Начинаем сейчас чаще пользоваться тем же SberMock но пока опыта маловато",
+                "manager_selected_level": "not_specified",
+                "manager_comment": "почему не средний?"
+              },
+              {
+                "competency_id": "работа_с_брокерами_сообщений",
+                "self_selected_level": "not_applicable",
+                "self_comment": "",
+                "manager_selected_level": "not_specified",
+                "manager_comment": "формулировки больше к разработке"
+              },
+              {
+                "competency_id": "работа_со_снифферами",
+                "self_selected_level": "not_applicable",
+                "self_comment": "",
+                "manager_selected_level": "not_specified",
+                "manager_comment": "DevTools ?"
+              },
+              {
+                "competency_id": "работа_с_командной_строкой",
+                "self_selected_level": "not_applicable",
+                "self_comment": "",
+                "manager_selected_level": "not_specified",
+                "manager_comment": ""
+              },
+              {
+                "competency_id": "тестирование_web",
+                "self_selected_level": 1,
+                "self_comment": "тут где то между начальным и средним, т.к. часть пунктов из срднего используем",
+                "manager_selected_level": 2,
+                "manager_comment": "много референсов не применимых"
+              },
+              {
+                "competency_id": "тестирование_mobile",
+                "self_selected_level": "not_applicable",
+                "self_comment": "",
+                "manager_selected_level": "not_specified",
+                "manager_comment": ""
+              },
+              {
+                "competency_id": "тестирование_api",
+                "self_selected_level": 1,
+                "self_comment": "",
+                "manager_selected_level": 2,
+                "manager_comment": ""
+              },
+              {
+                "competency_id": "работа_с_требованиями",
+                "self_selected_level": 3,
+                "self_comment": "",
+                "manager_selected_level": 3,
+                "manager_comment": ""
+              },
+              {
+                "competency_id": "создание_тестовой_модели",
+                "self_selected_level": 3,
+                "self_comment": "",
+                "manager_selected_level": 3,
+                "manager_comment": ""
+              },
+              {
+                "competency_id": "составление_тестовых_наборов",
+                "self_selected_level": 3,
+                "self_comment": "",
+                "manager_selected_level": 3,
+                "manager_comment": ""
+              },
+              {
+                "competency_id": "применение_распределенной_тестовой_модели_(пирамида)",
+                "self_selected_level": 2,
+                "self_comment": "",
+                "manager_selected_level": 3,
+                "manager_comment": ""
+              },
+              {
+                "competency_id": "работа_с_дефектами",
+                "self_selected_level": 2,
+                "self_comment": "",
+                "manager_selected_level": 2,
+                "manager_comment": ""
+              },
+              {
+                "competency_id": "работа_с_тестовыми_данными_и_окружением",
+                "self_selected_level": 1,
+                "self_comment": "",
+                "manager_selected_level": 1,
+                "manager_comment": ""
+              },
+              {
+                "competency_id": "работа_с_tms_и_отчетностью",
+                "self_selected_level": 1,
+                "self_comment": "",
+                "manager_selected_level": 1,
+                "manager_comment": ""
+              },
+              {
+                "competency_id": "работа_с_кодом\nприменение_и_знание_принципов_ооп",
+                "self_selected_level": 1,
+                "self_comment": "",
+                "manager_selected_level": 1,
+                "manager_comment": "собрать проект локально и разобраться как это все работает"
+              },
+              {
+                "competency_id": "знание_языков_программирования_(java_/_kotlin_/_python_/_swift)",
+                "self_selected_level": 1,
+                "self_comment": "",
+                "manager_selected_level": 1,
+                "manager_comment": ""
+              },
+              {
+                "competency_id": "настройка_ide_intellij_idea_/_pycharm_/_gigaide",
+                "self_selected_level": "no_experience",
+                "self_comment": "",
+                "manager_selected_level": "not_specified",
+                "manager_comment": ""
+              },
+              {
+                "competency_id": "применение_best_practicies_/_code_style",
+                "self_selected_level": 1,
+                "self_comment": "",
+                "manager_selected_level": 1,
+                "manager_comment": ""
+              },
+              {
+                "competency_id": "знание_паттернов_проектирования_и_их_использование_в_автоматизации",
+                "self_selected_level": "not_applicable",
+                "self_comment": "",
+                "manager_selected_level": "no_experience",
+                "manager_comment": ""
+              },
+              {
+                "competency_id": "работа_с_системами_управления_версиями",
+                "self_selected_level": 1,
+                "self_comment": "",
+                "manager_selected_level": 1,
+                "manager_comment": ""
+              },
+              {
+                "competency_id": "работа_с_бд_в_автотестах",
+                "self_selected_level": "not_applicable",
+                "self_comment": "",
+                "manager_selected_level": "no_experience",
+                "manager_comment": ""
+              },
+              {
+                "competency_id": "работа_с_фреймворками_ui",
+                "self_selected_level": "no_experience",
+                "self_comment": "",
+                "manager_selected_level": "no_experience",
+                "manager_comment": ""
+              },
+              {
+                "competency_id": "работа_с_фреймворками_api",
+                "self_selected_level": 1,
+                "self_comment": "",
+                "manager_selected_level": 1,
+                "manager_comment": ""
+              },
+              {
+                "competency_id": "работа_с_фреймворками_mobile",
+                "self_selected_level": "not_applicable",
+                "self_comment": "",
+                "manager_selected_level": "not_applicable",
+                "manager_comment": ""
+              },
+              {
+                "competency_id": "работа_с_фреймворками_bdd",
+                "self_selected_level": "no_experience",
+                "self_comment": "",
+                "manager_selected_level": "no_experience",
+                "manager_comment": ""
+              },
+              {
+                "competency_id": "работа_с_контейнеризацией",
+                "self_selected_level": "not_applicable",
+                "self_comment": "",
+                "manager_selected_level": "no_experience",
+                "manager_comment": ""
+              },
+              {
+                "competency_id": "работа_с_виртуализацией",
+                "self_selected_level": "no_experience",
+                "self_comment": "",
+                "manager_selected_level": "not_applicable",
+                "manager_comment": ""
+              },
+              {
+                "competency_id": "знание_алгоритмов_и_структур_данных",
+                "self_selected_level": 1,
+                "self_comment": "",
+                "manager_selected_level": 1,
+                "manager_comment": ""
+              },
+              {
+                "competency_id": "разработка_по_принципу_innersource:_переиспользование_готовых_промышленных_решений",
+                "self_selected_level": "not_applicable",
+                "self_comment": "",
+                "manager_selected_level": "no_experience",
+                "manager_comment": ""
+              },
+              {
+                "competency_id": "разработка_по_принципу_innersource:_разработка_универсального_решения_по_принципам_innersource",
+                "self_selected_level": "not_applicable",
+                "self_comment": "",
+                "manager_selected_level": "no_experience",
+                "manager_comment": ""
+              },
+              {
+                "competency_id": "работа_по_agile-практикам",
+                "self_selected_level": 2,
+                "self_comment": "",
+                "manager_selected_level": 2,
+                "manager_comment": ""
+              },
+              {
+                "competency_id": "менеджмент",
+                "self_selected_level": "no_experience",
+                "self_comment": "",
+                "manager_selected_level": "no_experience",
+                "manager_comment": ""
+              },
+              {
+                "competency_id": "планирование_тестирования",
+                "self_selected_level": 3,
+                "self_comment": "",
+                "manager_selected_level": 3,
+                "manager_comment": ""
+              },
+              {
+                "competency_id": "работа_с_метриками_qa",
+                "self_selected_level": 1,
+                "self_comment": "",
+                "manager_selected_level": 1,
+                "manager_comment": ""
+              },
+              {
+                "competency_id": "аудит_процессов_тестирования",
+                "self_selected_level": 2,
+                "self_comment": "",
+                "manager_selected_level": 1,
+                "manager_comment": "есть понимание как это делать. аудит всех стадий тестирования "
+              },
+              {
+                "competency_id": "использование_инструментов_наставничества",
+                "self_selected_level": 1,
+                "self_comment": "",
+                "manager_selected_level": 1,
+                "manager_comment": ""
+              },
+              {
+                "competency_id": "распространение_знаний",
+                "self_selected_level": "no_experience",
+                "self_comment": "",
+                "manager_selected_level": "no_experience",
+                "manager_comment": ""
+              },
+              {
+                "competency_id": "проведение_собеседований",
+                "self_selected_level": 1,
+                "self_comment": "",
+                "manager_selected_level": 2,
+                "manager_comment": ""
+              },
+              {
+                "competency_id": "применение_ai_в_ручном_тестировании",
+                "self_selected_level": 1,
+                "self_comment": "прохожу курс по ии агентам в тестировании",
+                "manager_selected_level": 1,
+                "manager_comment": "какой курс? Голая LLM "
+              },
+              {
+                "competency_id": "автоматизация_с_ai",
+                "self_selected_level": "no_experience",
+                "self_comment": "",
+                "manager_selected_level": "no_experience",
+                "manager_comment": ""
+              },
+              {
+                "competency_id": "тестирование_ai-систем_(llm/ml)",
+                "self_selected_level": "not_applicable",
+                "self_comment": "",
+                "manager_selected_level": "no_experience",
+                "manager_comment": ""
+              },
+              {
+                "competency_id": "качество_данных_и_data-governance",
+                "self_selected_level": "not_applicable",
+                "self_comment": "",
+                "manager_selected_level": "no_experience",
+                "manager_comment": ""
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "self_assessment_issues": [],
+    "processing_info": {
+      "total_processed": 1,
+      "unique_employees": 1,
+      "total_issues": 0,
+      "processed_at": "2026-04-06T19:06:08.671Z"
+    }
+  }
+]

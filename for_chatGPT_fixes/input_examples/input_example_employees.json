@@ -1,0 +1,22 @@
+[
+  {
+    "employees": [
+      {
+        "employee_id": 827272,
+        "login": 87654321,
+        "full_name": "Суслов Дмитрий Сергеевич",
+        "position": "Senior (high) Ведущий инженер по тестированию",
+        "team": "KAR",
+        "role": "qa_manual"
+      },
+      {
+        "employee_id": 1273721,
+        "login": 12345678,
+        "full_name": "Зезюлин Валерий Вячеславович",
+        "position": "Middle (high) Ведущий инженер по тестированию",
+        "team": "Core",
+        "role": "qa_manual"
+      }
+    ]
+  }
+]
