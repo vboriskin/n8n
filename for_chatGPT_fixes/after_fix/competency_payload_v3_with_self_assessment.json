@@ -1,0 +1,100 @@
+{
+  "name": "competency_payload_v3_with_self_assessment",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "manual_trigger",
+      "name": "Manual Trigger",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        260,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "function safeArray(v) {\n  return Array.isArray(v) ? v : [];\n}\n\nfunction normalizeToken(v) {\n  if (v === null || v === undefined || v === '') return null;\n  if (typeof v === 'number') return v;\n  const s = String(v).trim().toLowerCase();\n  const tokenMap = {\n    'not_applicable': 'not_applicable',\n    'not applicable': 'not_applicable',\n    'not_specified': 'not_specified',\n    'not specified': 'not_specified',\n    'no_experience': 'no_experience',\n    'no experience': 'no_experience',\n    'нет опыта': 'no_experience',\n    'не применимо': 'not_applicable',\n    'не указано': 'not_specified'\n  };\n  if (tokenMap[s]) return tokenMap[s];\n  const asNum = Number(s);\n  return Number.isFinite(asNum) ? asNum : s;\n}\n\nfunction compareLevels(a, b) {\n  if (typeof a === 'number' && typeof b === 'number') {\n    if (a < b) return 'lower';\n    if (a > b) return 'higher';\n    return 'equal';\n  }\n  if (a === b) return 'equal';\n  return 'unknown';\n}\n\nconst root = $input.first().json;\n\nconst competencies = safeArray(root.competency_catalog?.competencies);\nconst rawSelfAssessments = safeArray(root.assessment_input?.self_assessments);\nconst syntheticEvidence = safeArray(root.normalized?.synthetic_evidence);\nconst learningByCompetency = root.learning_catalog?.by_competency || {};\n\nconst selfByCompetency = {};\nfor (const item of rawSelfAssessments) {\n  if (!item?.competency_id) continue;\n  selfByCompetency[item.competency_id] = {\n    competency_id: item.competency_id,\n    self_level: normalizeToken(item.self_level),\n    self_comment: item.self_comment || '',\n    manager_level: normalizeToken(item.manager_level),\n    manager_comment: item.manager_comment || '',\n    assessment_date: item.assessment_date || null,\n    source: item.source || 'uploaded_self_assessment'\n  };\n}\n\nconst syntheticByCompetency = {};\nfor (const item of syntheticEvidence) {\n  if (!item?.competency_id) continue;\n  if (!syntheticByCompetency[item.competency_id]) {\n    syntheticByCompetency[item.competency_id] = [];\n  }\n  syntheticByCompetency[item.competency_id].push(item);\n}\n\nreturn competencies.map(comp => {\n  const competencyId = comp.competency_id;\n  const sa = selfByCompetency[competencyId] || null;\n\n  const selfLevel = sa?.self_level ?? null;\n  const managerLevel = sa?.manager_level ?? null;\n\n  const selfManagerRelation =\n    selfLevel !== null && managerLevel !== null\n      ? compareLevels(selfLevel, managerLevel)\n      : 'missing';\n\n  let alignment = null;\n  if (selfManagerRelation === 'lower') alignment = 'underestimate';\n  else if (selfManagerRelation === 'higher') alignment = 'overestimate';\n  else if (selfManagerRelation === 'equal') alignment = 'aligned';\n\n  const hasSelfAssessment = !!sa;\n  const hasManagerCalibration = sa && managerLevel !== null;\n  const calibrationConflict =\n    hasSelfAssessment &&\n    hasManagerCalibration &&\n    selfManagerRelation !== 'equal' &&\n    selfManagerRelation !== 'unknown';\n\n  const confidenceHint =\n    !hasSelfAssessment ? 'low'\n    : calibrationConflict ? 'medium'\n    : hasManagerCalibration ? 'high'\n    : 'medium';\n\n  const learningAssets = safeArray(learningByCompetency[competencyId]).slice(0, 5);\n\n  return {\n    json: {\n      employee: root.employee,\n\n      assessment_mode: root.workflow_config?.assessment_mode || 'matrix_only',\n      performance_inference_allowed: !!root.workflow_config?.performance_inference_allowed,\n      development_inference_allowed: !!root.workflow_config?.development_inference_allowed,\n\n      competency_id: competencyId,\n      competency_name: comp.competency_name || competencyId,\n      group_name: comp.group_name || null,\n      type: comp.type || 'unknown',\n\n      levels: safeArray(comp.levels),\n      signals: comp.signals || {\n        jira: [],\n        behavioral: [],\n        skill_categories: []\n      },\n\n      self_assessment: sa ? {\n        self_level: selfLevel,\n        self_comment: sa.self_comment,\n        manager_level: managerLevel,\n        manager_comment: sa.manager_comment,\n        assessment_date: sa.assessment_date,\n        source: sa.source\n      } : null,\n\n      self_assessment_signals: {\n        has_self_assessment: hasSelfAssessment,\n        has_manager_calibration: hasManagerCalibration,\n        self_vs_manager_relation: selfManagerRelation,\n        self_vs_manager_gap:\n          hasSelfAssessment && hasManagerCalibration\n            ? selfManagerRelation !== 'equal' && selfManagerRelation !== 'unknown'\n            : false,\n        alignment,\n        confidence_hint: confidenceHint\n      },\n\n      evidence: [],\n      synthetic_evidence: safeArray(syntheticByCompetency[competencyId]),\n      internal_learning_assets: learningAssets,\n\n      meta: {\n        source: 'build_competency_payloads_v3',\n        self_assessment_used: hasSelfAssessment\n      }\n    }\n  };\n});"
+      },
+      "id": "build_competency_payloads_v3",
+      "name": "Code / Build Competency Payloads v3",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        560,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const input = $json;\n\nconst systemPrompt = `Ты анализируешь одну компетенцию сотрудника для карьерного и развивающего отчета.\n\nПравила:\n- Используй только переданные данные\n- Если assessment_mode = matrix_only:\n  - не делай уверенный вывод о фактическом уровне сотрудника\n  - не делай performance verdict\n  - используй matrix как baseline role expectation\n  - если factual evidence отсутствует, confidence должен быть low или medium, но не завышай его\n  - фокусируйся на development guidance, readiness gaps и learning recommendations\n- Self-assessment НЕ является доказанным performance evidence\n- Но self-assessment является сильным сигналом:\n  - самооценки сотрудника\n  - калибровки ожиданий\n  - расхождения между восприятием сотрудника и оценкой менеджера\n- Интерпретация self_assessment:\n  1. если self_level и manager_level совпадают:\n     - повышай confidence\n     - считай калибровку согласованной\n  2. если self_level < manager_level:\n     - employee may underestimate themselves\n     - это сигнал потенциала и темы для one-to-one\n  3. если self_level > manager_level:\n     - это сигнал возможной переоценки или различий в критериях\n     - confidence снижай\n  4. если manager_level отсутствует:\n     - self_level используй как perception signal, но не как факт\n  5. если оба отсутствуют:\n     - опирайся только на matrix baseline и synthetic evidence\n- Не путай отсутствие evidence с отсутствием компетенции\n- Если internal learning assets есть, используй их для development focus\n\nВерни строго JSON без markdown.`;\n\nconst userPrompt = `Верни JSON:\n{\n  \"competency_id\": \"string\",\n  \"self_level\": \"string|number|null\",\n  \"manager_level\": \"string|number|null\",\n  \"estimated_level\": \"string|number|null\",\n  \"confidence\": \"low|medium|high\",\n  \"priority\": \"low|medium|high\",\n  \"assessment\": \"string\",\n  \"development_focus\": \"string\",\n  \"alignment\": \"underestimate|overestimate|aligned|null\",\n  \"self_vs_manager_gap\": true,\n  \"evidence_missing\": [\"string\"],\n  \"risk_flags\": [\"string\"]\n}\n\nДанные:\n${JSON.stringify(input)}`;\n\nreturn [{\n  json: {\n    ...input,\n    llm_prompt: {\n      system: systemPrompt,\n      user: userPrompt\n    }\n  }\n}];"
+      },
+      "id": "build_llm_prompt_v2",
+      "name": "Code / Build LLM Analyze Competency Prompt v2",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        860,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "function safeArray(v) {\n  return Array.isArray(v) ? v : [];\n}\n\nconst x = $json || {};\nconst payload = x.output || x.response || x.result || x;\n\nconst allowedConfidence = ['low', 'medium', 'high'];\nconst allowedPriority = ['low', 'medium', 'high'];\nconst allowedAlignment = ['underestimate', 'overestimate', 'aligned', null];\n\nreturn [{\n  json: {\n    competency_id: payload.competency_id || x.competency_id || null,\n    self_level: payload.self_level ?? x.self_assessment?.self_level ?? null,\n    manager_level: payload.manager_level ?? x.self_assessment?.manager_level ?? null,\n    estimated_level: payload.estimated_level ?? null,\n    confidence: allowedConfidence.includes(payload.confidence) ? payload.confidence : 'low',\n    priority: allowedPriority.includes(payload.priority) ? payload.priority : 'medium',\n    assessment: payload.assessment || '',\n    development_focus: payload.development_focus || '',\n    alignment: allowedAlignment.includes(payload.alignment) ? payload.alignment : null,\n    self_vs_manager_gap:\n      typeof payload.self_vs_manager_gap === 'boolean'\n        ? payload.self_vs_manager_gap\n        : !!x.self_assessment_signals?.self_vs_manager_gap,\n    evidence_missing: safeArray(payload.evidence_missing),\n    risk_flags: safeArray(payload.risk_flags)\n  }\n}];"
+      },
+      "id": "normalize_competency_result_v2",
+      "name": "Code / Normalize Competency Result v2",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1160,
+        300
+      ]
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Manual Trigger": {
+      "main": [
+        [
+          {
+            "node": "Code / Build Competency Payloads v3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code / Build Competency Payloads v3": {
+      "main": [
+        [
+          {
+            "node": "Code / Build LLM Analyze Competency Prompt v2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code / Build LLM Analyze Competency Prompt v2": {
+      "main": [
+        [
+          {
+            "node": "Code / Normalize Competency Result v2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "competency-payload-v3-self-assessment",
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "id": "competency_payload_v3_with_self_assessment"
+}
