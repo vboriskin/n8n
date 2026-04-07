@@ -335,7 +335,7 @@
     },
     {
       "parameters": {
-        "jsCode": "const originalData = items[0]?.json?.original_data || {};\nconst openAiResponse = items[0]?.json?.text || items[0]?.json?.message || {};\n\n// Восстанавливаем полную структуру\nreturn [{\n  json: {\n    ...originalData,           // Все исходные данные\n    openai_response: openAiResponse,  // Ответ OpenAI\n    // Можно добавить метаданные\n    processed_at: new Date().toISOString(),\n    ai_model: 'openai'\n  }\n}];"
+        "jsCode": "const inputData = $input.first()?.json || {};\nconst originalData = inputData.original_data || {};\n\nreturn [{\n  json: {\n    ...originalData,\n    processed_at: new Date().toISOString(),\n    ai_model: 'openai'\n  }\n}];"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
@@ -348,7 +348,7 @@
     },
     {
       "parameters": {
-        "jsCode": "// Сохраняем все данные во временное поле\nconst inputData = $input.item.json;\nreturn {\n  original_data: inputData,\n  // Если нужно, можно сохранить отдельные поля\n  employee: inputData.employee,\n  competency: inputData.competency,\n  target_level: inputData.target_level,\n  self_assessment_item: inputData.self_assessment_item,\n  competency_result: inputData.competency_result\n};"
+        "jsCode": "const inputData = $input.first()?.json || {};\n\nreturn [{\n  json: {\n    original_data: inputData,\n    employee: inputData.employee,\n    competency: inputData.competency,\n    target_level: inputData.target_level,\n    candidate_score: inputData.candidate_score,\n    jira_evidence: inputData.jira_evidence,\n    self_assessment_item: inputData.self_assessment_item,\n    competency_result: inputData.competency_result,\n    competency_map: inputData.competency_map,\n    learning_matches: inputData.learning_matches,\n    planning_candidates: inputData.planning_candidates,\n    shortlisted_plan_candidates: inputData.shortlisted_plan_candidates,\n    development_plan_payload: inputData.development_plan_payload,\n    _metadata: inputData._metadata\n  }\n}];"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
@@ -376,7 +376,7 @@
     },
     {
       "parameters": {
-        "jsCode": "const originalData = items[0]?.json?.original_data || {};\nconst openAiResponse = items[0]?.json?.text || items[0]?.json?.message || {};\n\n// Восстанавливаем полную структуру\nreturn [{\n  json: {\n    ...originalData,           // Все исходные данные\n    openai_response: openAiResponse,  // Ответ OpenAI\n    // Можно добавить метаданные\n    processed_at: new Date().toISOString(),\n    ai_model: 'openai'\n  }\n}];"
+        "jsCode": "const inputData = $input.first()?.json || {};\nconst originalData = inputData.original_data || {};\n\nreturn [{\n  json: {\n    ...originalData,\n    processed_at: new Date().toISOString(),\n    ai_model: 'openai'\n  }\n}];"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
@@ -389,7 +389,7 @@
     },
     {
       "parameters": {
-        "jsCode": "// Сохраняем все данные во временное поле\nconst inputData = $input.item.json;\nreturn {\n  original_data: inputData,\n  // Если нужно, можно сохранить отдельные поля\n  employee: inputData.employee,\n  competency: inputData.competency,\n  target_level: inputData.target_level,\n  self_assessment_item: inputData.self_assessment_item,\n  competency_result: inputData.competency_result\n};"
+        "jsCode": "const inputData = $input.first()?.json || {};\n\nreturn [{\n  json: {\n    original_data: inputData,\n    employee: inputData.employee,\n    competency: inputData.competency,\n    target_level: inputData.target_level,\n    candidate_score: inputData.candidate_score,\n    jira_evidence: inputData.jira_evidence,\n    self_assessment_item: inputData.self_assessment_item,\n    competency_result: inputData.competency_result,\n    competency_map: inputData.competency_map,\n    learning_matches: inputData.learning_matches,\n    planning_candidates: inputData.planning_candidates,\n    shortlisted_plan_candidates: inputData.shortlisted_plan_candidates,\n    development_plan_payload: inputData.development_plan_payload,\n    _metadata: inputData._metadata\n  }\n}];"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
@@ -417,7 +417,7 @@
     },
     {
       "parameters": {
-        "jsCode": "const originalData = items[0]?.json?.original_data || {};\nconst openAiResponse = items[0]?.json?.text || items[0]?.json?.message || {};\n\n// Восстанавливаем полную структуру\nreturn [{\n  json: {\n    ...originalData,           // Все исходные данные\n    openai_response: openAiResponse,  // Ответ OpenAI\n    // Можно добавить метаданные\n    processed_at: new Date().toISOString(),\n    ai_model: 'openai'\n  }\n}];"
+        "jsCode": "const inputData = $input.first()?.json || {};\nconst originalData = inputData.original_data || {};\n\nreturn [{\n  json: {\n    ...originalData,\n    processed_at: new Date().toISOString(),\n    ai_model: 'openai'\n  }\n}];"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
@@ -430,7 +430,7 @@
     },
     {
       "parameters": {
-        "jsCode": "// Сохраняем все данные во временное поле\nconst inputData = $input.item.json;\nreturn {\n  original_data: inputData,\n  // Если нужно, можно сохранить отдельные поля\n  employee: inputData.employee,\n  competency: inputData.competency,\n  target_level: inputData.target_level,\n  self_assessment_item: inputData.self_assessment_item,\n  competency_result: inputData.competency_result,\n  competency_map: inputData.competency_map,\n  learning_matches: inputData.learning_matches,\n  planning_candidates: inputData.planning_candidates,\n  shortlisted_plan_candidates: inputData.shortlisted_plan_candidates,\n  development_plan_payload: inputData.development_plan_payload,\n\n};"
+        "jsCode": "const inputData = $input.first()?.json || {};\n\nreturn [{\n  json: {\n    original_data: inputData,\n    employee: inputData.employee,\n    competency: inputData.competency,\n    target_level: inputData.target_level,\n    candidate_score: inputData.candidate_score,\n    jira_evidence: inputData.jira_evidence,\n    self_assessment_item: inputData.self_assessment_item,\n    competency_result: inputData.competency_result,\n    competency_map: inputData.competency_map,\n    learning_matches: inputData.learning_matches,\n    planning_candidates: inputData.planning_candidates,\n    shortlisted_plan_candidates: inputData.shortlisted_plan_candidates,\n    development_plan_payload: inputData.development_plan_payload,\n    _metadata: inputData._metadata\n  }\n}];"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
@@ -458,7 +458,7 @@
     },
     {
       "parameters": {
-        "jsCode": "const originalData = items[0]?.json?.original_data || {};\nconst openAiResponse = items[0]?.json?.text || items[0]?.json?.message || {};\n\n// Восстанавливаем полную структуру\nreturn [{\n  json: {\n    ...originalData,           // Все исходные данные\n    openai_response: openAiResponse,  // Ответ OpenAI\n    // Можно добавить метаданные\n    processed_at: new Date().toISOString(),\n    ai_model: 'openai'\n  }\n}];"
+        "jsCode": "const inputData = $input.first()?.json || {};\nconst originalData = inputData.original_data || {};\n\nreturn [{\n  json: {\n    ...originalData,\n    processed_at: new Date().toISOString(),\n    ai_model: 'openai'\n  }\n}];"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
@@ -471,7 +471,7 @@
     },
     {
       "parameters": {
-        "jsCode": "// Сохраняем все данные во временное поле\nconst inputData = $input.item.json;\nreturn {\n  original_data: inputData,\n  // Если нужно, можно сохранить отдельные поля\n  employee: inputData.employee,\n  competency: inputData.competency,\n  target_level: inputData.target_level,\n  self_assessment_item: inputData.self_assessment_item,\n  competency_result: inputData.competency_result\n};"
+        "jsCode": "const inputData = $input.first()?.json || {};\n\nreturn [{\n  json: {\n    original_data: inputData,\n    employee: inputData.employee,\n    competency: inputData.competency,\n    target_level: inputData.target_level,\n    candidate_score: inputData.candidate_score,\n    jira_evidence: inputData.jira_evidence,\n    self_assessment_item: inputData.self_assessment_item,\n    competency_result: inputData.competency_result,\n    competency_map: inputData.competency_map,\n    learning_matches: inputData.learning_matches,\n    planning_candidates: inputData.planning_candidates,\n    shortlisted_plan_candidates: inputData.shortlisted_plan_candidates,\n    development_plan_payload: inputData.development_plan_payload,\n    _metadata: inputData._metadata\n  }\n}];"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
@@ -937,7 +937,7 @@
     },
     {
       "parameters": {
-        "jsCode": "const originalData = items[0]?.json?.original_data || {};\nconst openAiResponse = items[0]?.json?.text || items[0]?.json?.message || {};\n\n// Восстанавливаем полную структуру\nreturn [{\n  json: {\n    ...originalData,           // Все исходные данные\n    openai_response: openAiResponse,  // Ответ OpenAI\n    // Можно добавить метаданные\n    processed_at: new Date().toISOString(),\n    ai_model: 'openai'\n  }\n}];"
+        "jsCode": "const inputData = $input.first()?.json || {};\nconst originalData = inputData.original_data || {};\n\nreturn [{\n  json: {\n    ...originalData,\n    processed_at: new Date().toISOString(),\n    ai_model: 'openai'\n  }\n}];"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
@@ -950,7 +950,7 @@
     },
     {
       "parameters": {
-        "jsCode": "// Сохраняем все данные во временное поле\nconst inputData = $input.item.json;\n\nreturn {\n  original_data: inputData,\n  // Если нужно, можно сохранить отдельные поля\n  employee: inputData.employee,\n  competency: inputData.competency,\n  target_level: inputData.target_level,\n  candidate_score: inputData.candidate_score,\n  jira_evidence: inputData.jira_evidence,\n  self_assessment_item: inputData.self_assessment_item,\n    _metadata: inputData._metadata,\n};"
+        "jsCode": "const inputData = $input.first()?.json || {};\n\nreturn [{\n  json: {\n    original_data: inputData,\n    employee: inputData.employee,\n    competency: inputData.competency,\n    target_level: inputData.target_level,\n    candidate_score: inputData.candidate_score,\n    jira_evidence: inputData.jira_evidence,\n    self_assessment_item: inputData.self_assessment_item,\n    competency_result: inputData.competency_result,\n    competency_map: inputData.competency_map,\n    learning_matches: inputData.learning_matches,\n    planning_candidates: inputData.planning_candidates,\n    shortlisted_plan_candidates: inputData.shortlisted_plan_candidates,\n    development_plan_payload: inputData.development_plan_payload,\n    _metadata: inputData._metadata\n  }\n}];"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
