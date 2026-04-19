@@ -1,0 +1,4427 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Одобри кредит</title>
+  <style>
+/* =============================================================================
+   ОДОБРИ КРЕДИТ v2 — КАРДИНАЛЬНО НОВЫЙ ВИЗУАЛ
+   Вид от первого лица на рабочий стол инспектора КПП.
+   Дерево, металл, бумага, резиновые штампы, ночная лампа, CRT-терминал.
+   ============================================================================= */
+
+@import url('https://fonts.googleapis.com/css2?family=VT323&family=Special+Elite&family=Unica+One&display=swap');
+
+:root {
+  /* === Тьма помещения === */
+  --void:        #050607;
+  --coal-900:    #0b0c0e;
+  --coal-800:    #111315;
+  --coal-700:    #181a1d;
+  --coal-600:    #23262a;
+  --coal-500:    #2e3236;
+  --coal-400:    #3a3e42;
+
+  /* === Деревянный стол === */
+  --wood-deep:   #1d140c;
+  --wood-mid:    #2a1d10;
+  --wood:        #3a2817;
+  --wood-light:  #513722;
+
+  /* === Металл и латунь === */
+  --steel-900:   #1a1c1d;
+  --steel-700:   #3a3d3f;
+  --steel-500:   #585c5f;
+  --steel-300:   #8e928d;
+  --brass:       #a88238;
+  --brass-dim:   #6b4f1e;
+  --rust:        #7a3b22;
+
+  /* === Бумага === */
+  --paper:       #e6dcbf;
+  --paper-dark:  #c9bb96;
+  --paper-edge:  #8a7b4e;
+  --paper-shade: #9a8a5d;
+
+  /* === Чернила, штампы === */
+  --ink:         #1a1509;
+  --ink-soft:    #2b2415;
+  --red-stamp:   #a11a1a;
+  --red-blood:   #7a0f0f;
+  --red-soviet:  #c02020;
+  --green-stamp: #4a6b1a;
+  --olive:       #6b6a2a;
+  --ochre:       #b08a2c;
+
+  /* === Ламповый свет === */
+  --lamp-hot:    #ffe0a0;
+  --lamp-warm:   #e0b060;
+  --lamp-cone:   rgba(255,210,140,0.24);
+
+  /* === Фосфорный монитор === */
+  --phos-bg:     #0b1a10;
+  --phos-dim:    rgba(124,255,124,0.45);
+  --phos:        #7cff7c;
+  --phos-bright: #b8ffb8;
+  --amber:       #ffb860;
+
+  /* === Совместимость === */
+  --fly-x: 0px;
+  --fly-y: 0px;
+  --panic-shift-x: 0px;
+  --panic-shift-y: 0px;
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+
+body {
+  min-height: 100vh;
+  background: var(--void);
+  color: var(--paper);
+  font-family: 'Special Elite', 'Courier New', monospace;
+  font-size: 15px;
+  line-height: 1.45;
+  letter-spacing: 0.015em;
+  overflow-x: hidden;
+  position: relative;
+  background:
+    radial-gradient(ellipse 60% 45% at 50% 68%,
+      rgba(255,210,140,0.20) 0%,
+      rgba(255,180,90,0.10) 30%,
+      rgba(0,0,0,0) 65%),
+    radial-gradient(ellipse 120% 90% at 50% 50%,
+      rgba(0,0,0,0) 40%,
+      rgba(0,0,0,0.55) 70%,
+      rgba(0,0,0,0.92) 100%),
+    linear-gradient(180deg,
+      var(--void) 0%,
+      var(--coal-900) 25%,
+      var(--coal-800) 40%,
+      var(--wood-deep) 42%,
+      var(--wood-mid) 55%,
+      var(--wood) 75%,
+      var(--wood-light) 100%);
+  background-attachment: fixed;
+}
+
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  background:
+    repeating-linear-gradient(
+      90deg,
+      transparent 0 3px,
+      rgba(0,0,0,0.08) 3px 4px,
+      transparent 4px 17px,
+      rgba(0,0,0,0.12) 17px 18px,
+      transparent 18px 31px),
+    repeating-linear-gradient(
+      0deg,
+      rgba(0,0,0,0.00) 0 2px,
+      rgba(0,0,0,0.22) 2px 3px);
+  mix-blend-mode: multiply;
+  animation: crt-flicker 5.1s steps(30) infinite;
+}
+
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1000;
+  background:
+    radial-gradient(ellipse 110% 90% at 50% 50%,
+      transparent 35%,
+      rgba(0,0,0,0.25) 65%,
+      rgba(0,0,0,0.85) 100%);
+  box-shadow:
+    inset 0 0 220px rgba(0,0,0,0.95),
+    inset 0 0 50px rgba(0,0,0,0.75);
+}
+
+@keyframes crt-flicker {
+  0%, 97%, 100% { opacity: 1; }
+  97.5% { opacity: 0.82; }
+  98% { opacity: 1; }
+  98.5% { opacity: 0.9; }
+}
+
+/* ===== БОКОВЫЕ ДЕКОРАЦИИ ===== */
+.side-decor {
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  width: 100px;
+  z-index: 2;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse at 30% 20%, rgba(40,30,15,0.6), transparent 45%),
+    radial-gradient(ellipse at 70% 75%, rgba(60,40,20,0.5), transparent 50%),
+    repeating-linear-gradient(0deg,
+      rgba(0,0,0,0.12) 0 1px,
+      transparent 1px 40px),
+    linear-gradient(180deg, var(--coal-900) 0%, #2a2218 55%, var(--wood-deep) 100%);
+  border-right: 2px solid var(--coal-900);
+  box-shadow:
+    inset -18px 0 40px rgba(0,0,0,0.7),
+    4px 0 12px rgba(0,0,0,0.8);
+  overflow: hidden;
+}
+.side-decor-left { left: 0; }
+.right-posters {
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  right: 0;
+  width: 100px;
+  z-index: 2;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse at 70% 25%, rgba(40,30,15,0.6), transparent 45%),
+    repeating-linear-gradient(0deg,
+      rgba(0,0,0,0.12) 0 1px,
+      transparent 1px 40px),
+    linear-gradient(180deg, var(--coal-900) 0%, #2a2218 55%, var(--wood-deep) 100%);
+  border-left: 2px solid var(--coal-900);
+  box-shadow:
+    inset 18px 0 40px rgba(0,0,0,0.7),
+    -4px 0 12px rgba(0,0,0,0.8);
+}
+.side-decor .ceiling-cable {
+  position: absolute;
+  top: 0; left: 45%;
+  width: 2px; height: 90px;
+  background: linear-gradient(180deg, var(--coal-900), var(--steel-700));
+}
+.side-decor .wall-lamp {
+  position: absolute;
+  top: 80px; left: 50%;
+  transform: translateX(-50%);
+  width: 50px; height: 30px;
+  background: radial-gradient(circle at 50% 30%,
+    var(--lamp-hot), var(--lamp-warm) 55%, var(--brass-dim) 85%, var(--coal-900));
+  border-radius: 50% 50% 40% 40% / 60% 60% 40% 40%;
+  box-shadow:
+    0 18px 80px 10px rgba(255,200,120,0.35),
+    0 0 0 2px var(--coal-900),
+    inset 0 -6px 12px rgba(0,0,0,0.6);
+}
+.side-decor .wall-lamp::after {
+  content: "";
+  position: absolute;
+  top: 100%; left: 50%;
+  transform: translateX(-50%);
+  width: 180px; height: 300px;
+  background: radial-gradient(ellipse at top, var(--lamp-cone), transparent 70%);
+}
+.side-decor .wall-sign,
+.side-decor .poster,
+.right-posters .poster-side {
+  position: absolute;
+  font-family: 'Unica One', sans-serif;
+  letter-spacing: 0.1em;
+  padding: 8px 6px;
+  text-align: center;
+  color: var(--ink);
+  background: var(--paper-dark);
+  border: 1px solid var(--paper-edge);
+  box-shadow: 2px 3px 0 rgba(0,0,0,0.6),
+    inset 0 0 0 2px rgba(0,0,0,0.05);
+  font-size: 10px;
+  line-height: 1.3;
+  text-transform: uppercase;
+  transform: rotate(-2deg);
+  filter: sepia(0.3) brightness(0.9);
+}
+.side-decor .wall-sign { top: 150px; left: 8px; right: 8px; }
+.side-decor .poster { top: 230px; left: 8px; right: 8px; background: var(--paper); }
+.side-decor .poster-joke-one { top: 320px; transform: rotate(3deg); background: var(--ochre); }
+.side-decor .poster-joke-two { top: 400px; transform: rotate(-4deg); background: #6e6232; color: var(--paper); }
+.side-decor .poster-small { font-size: 9px; padding: 6px 4px; }
+.side-decor .file-cabinet {
+  position: absolute;
+  bottom: 120px; left: 8px; right: 8px;
+  height: 90px;
+  background: linear-gradient(180deg, #5a4024 0%, #3a2818 100%);
+  border: 2px solid var(--coal-900);
+  box-shadow: inset 0 2px 0 rgba(255,220,170,0.15),
+    0 4px 10px rgba(0,0,0,0.6);
+  display: flex;
+  flex-direction: column;
+  padding: 5px 3px;
+  gap: 3px;
+}
+.side-decor .file-cabinet span {
+  flex: 1;
+  background: linear-gradient(180deg, #6b4d2a, #4a331c);
+  border: 1px solid var(--coal-900);
+  position: relative;
+}
+.side-decor .file-cabinet span::after {
+  content: "";
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%,-50%);
+  width: 12px; height: 3px;
+  background: var(--brass);
+  border-radius: 1px;
+}
+.side-decor .pipe {
+  position: absolute;
+  top: 0; bottom: 0;
+  right: 4px;
+  width: 8px;
+  background: linear-gradient(90deg,
+    var(--steel-500), var(--steel-700) 50%, var(--steel-900));
+}
+.side-decor .radiator {
+  position: absolute;
+  bottom: 20px; left: 8px; right: 8px;
+  height: 80px;
+  background: repeating-linear-gradient(90deg,
+    #5a5a5a 0 6px, #3a3a3a 6px 10px);
+  border: 2px solid var(--coal-900);
+}
+.right-posters .poster-side {
+  left: 8px; right: 8px;
+}
+.right-posters .poster-side:nth-child(1) { top: 120px; }
+.right-posters .poster-side:nth-child(2) { top: 220px; transform: rotate(4deg); }
+.right-posters .poster-side-red {
+  background: var(--red-stamp);
+  color: var(--paper);
+  border-color: var(--red-blood);
+  box-shadow: 2px 3px 0 rgba(0,0,0,0.8),
+    inset 0 0 0 2px rgba(255,255,255,0.1);
+  animation: red-warn 2.3s ease-in-out infinite;
+}
+@keyframes red-warn {
+  0%, 100% { filter: brightness(0.85); }
+  50% { filter: brightness(1.15); }
+}
+
+/* ===== ОБОЛОЧКА ===== */
+.app-shell {
+  position: relative;
+  z-index: 10;
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 24px 120px 40px;
+  min-height: 100vh;
+}
+
+/* ===== ЭКРАНЫ ===== */
+.screen {
+  display: none;
+  animation: screen-fade 0.4s ease;
+}
+.screen.screen-active { display: block; }
+.game-screen.screen-active {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+@keyframes screen-fade {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ===== СТАРТОВЫЙ ЭКРАН ===== */
+.intro-screen { padding: 20px 0 20px; }
+
+.bureau-scene {
+  position: relative;
+  height: 230px;
+  margin-bottom: 22px;
+  background: linear-gradient(180deg, #0a0e12 0%, #1a2430 40%, #0a1015 100%);
+  border: 3px solid var(--coal-900);
+  box-shadow:
+    inset 0 0 80px rgba(0,0,0,0.8),
+    0 10px 20px rgba(0,0,0,0.7);
+  overflow: hidden;
+}
+.bureau-scene::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    repeating-linear-gradient(90deg, transparent 0 78px, var(--coal-900) 78px 84px),
+    repeating-linear-gradient(0deg, transparent 0 50px, var(--coal-900) 50px 54px);
+  opacity: 0.6;
+  pointer-events: none;
+}
+.bureau-scene::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(circle at 10% 30%, #cbcec2 1px, transparent 2px),
+    radial-gradient(circle at 40% 10%, #e0e2d8 1px, transparent 2px),
+    radial-gradient(circle at 70% 60%, #cbcec2 1px, transparent 2px),
+    radial-gradient(circle at 85% 20%, #e0e2d8 1px, transparent 2px),
+    radial-gradient(circle at 25% 80%, #cbcec2 1px, transparent 2px);
+  background-size: 180px 180px;
+  opacity: 0.85;
+  animation: snow-drift 18s linear infinite;
+}
+@keyframes snow-drift {
+  from { background-position: 0 -180px, 0 -180px, 0 -180px, 0 -180px, 0 -180px; }
+  to   { background-position: 40px 0, -30px 0, 20px 0, -10px 0, 50px 0; }
+}
+.queue-window {
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  height: 90px;
+  background: linear-gradient(180deg,
+    transparent, rgba(10,15,18,0.9) 60%, #0a0e12 100%);
+}
+.queue-window .city-line {
+  position: absolute;
+  bottom: 50px; left: 0; right: 0;
+  height: 30px;
+  background:
+    linear-gradient(90deg,
+      transparent 0 10px,
+      #0a0d10 10px 35px,
+      transparent 35px 55px,
+      #0a0d10 55px 90px,
+      transparent 90px 120px,
+      #0a0d10 120px 160px,
+      transparent 160px 190px);
+  opacity: 0.8;
+}
+.queue-window .queue-figures {
+  position: absolute;
+  bottom: 0; left: 10%; right: 10%;
+  height: 70px;
+  background:
+    radial-gradient(ellipse at 20% 100%, #0a0d10 30%, transparent 55%),
+    radial-gradient(ellipse at 45% 100%, #0a0d10 35%, transparent 60%),
+    radial-gradient(ellipse at 70% 100%, #0a0d10 30%, transparent 55%),
+    radial-gradient(ellipse at 90% 100%, #0a0d10 25%, transparent 50%);
+}
+.queue-window .glass-line {
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: linear-gradient(90deg,
+    transparent, rgba(255,255,255,0.15), transparent);
+}
+.bureau-scene .counter {
+  position: absolute;
+  bottom: 10px; right: 20px;
+  width: 110px; height: 90px;
+  background: linear-gradient(180deg, #2a1f12, #120a04);
+  border: 2px solid var(--coal-900);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.bureau-scene .applicant-portrait {
+  width: 60px; height: 70px;
+  background: #d8b088;
+  border-radius: 40% 40% 30% 30%;
+  position: relative;
+}
+.bureau-scene .applicant-portrait::before {
+  content: "";
+  position: absolute;
+  top: -6px; left: -4px; right: -4px;
+  height: 20px;
+  background: #3a2612;
+  border-radius: 50% 50% 20% 20%;
+}
+.bureau-scene .speaker-bubble {
+  display: none;
+}
+
+.bank-mark {
+  text-align: center;
+  font-family: 'Unica One', sans-serif;
+  font-size: 0.8rem;
+  letter-spacing: 0.4em;
+  color: var(--ochre);
+  margin-bottom: 8px;
+  text-transform: uppercase;
+  text-shadow: 1px 1px 0 var(--coal-900);
+}
+
+.intro-screen h1 {
+  font-family: 'Unica One', sans-serif;
+  text-align: center;
+  font-size: 3rem;
+  letter-spacing: 0.18em;
+  color: var(--paper);
+  text-shadow:
+    0 0 2px rgba(255,220,160,0.4),
+    3px 3px 0 var(--coal-900),
+    4px 4px 0 var(--red-blood);
+  margin: 0 0 10px;
+  text-transform: uppercase;
+}
+.intro-screen h1::before,
+.intro-screen h1::after {
+  content: "★";
+  color: var(--red-soviet);
+  margin: 0 16px;
+  font-size: 1.6rem;
+  vertical-align: middle;
+  text-shadow: 2px 2px 0 var(--coal-900);
+}
+.intro-copy {
+  text-align: center;
+  max-width: 640px;
+  margin: 0 auto 20px;
+  color: var(--paper-dark);
+  font-size: 0.98rem;
+  line-height: 1.55;
+}
+
+.author-card {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 12px;
+  max-width: 900px;
+  margin: 0 auto 26px;
+}
+.author-card > div {
+  background: var(--paper);
+  color: var(--ink);
+  padding: 14px 16px;
+  border: 1px solid var(--paper-edge);
+  position: relative;
+  box-shadow:
+    3px 4px 0 rgba(0,0,0,0.7),
+    inset 0 0 0 1px rgba(0,0,0,0.08);
+  font-size: 0.88rem;
+}
+.author-card > div span {
+  display: block;
+  font-family: 'Unica One', sans-serif;
+  font-size: 0.72rem;
+  letter-spacing: 0.22em;
+  color: var(--red-blood);
+  margin-bottom: 4px;
+  text-transform: uppercase;
+  border-bottom: 2px dashed var(--paper-edge);
+  padding-bottom: 3px;
+}
+.author-card > div strong {
+  font-family: 'Special Elite', monospace;
+  color: var(--ink);
+  font-size: 1rem;
+  letter-spacing: 0.02em;
+  display: block;
+}
+
+.primary-button {
+  display: block;
+  margin: 20px auto 0;
+  padding: 16px 44px;
+  font-family: 'Unica One', sans-serif;
+  font-size: 1.1rem;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--paper);
+  background: linear-gradient(180deg, var(--red-soviet), var(--red-blood));
+  border: 2px solid var(--coal-900);
+  border-radius: 0;
+  cursor: pointer;
+  position: relative;
+  box-shadow:
+    0 6px 0 var(--coal-900),
+    0 10px 20px rgba(0,0,0,0.7),
+    inset 0 2px 0 rgba(255,255,255,0.2),
+    inset 0 -10px 18px rgba(0,0,0,0.35);
+  transition: transform 0.08s, box-shadow 0.08s;
+}
+.primary-button:hover { transform: translateY(-2px); }
+.primary-button:active {
+  transform: translateY(4px);
+  box-shadow:
+    0 2px 0 var(--coal-900),
+    inset 0 2px 0 rgba(0,0,0,0.2),
+    inset 0 -4px 10px rgba(0,0,0,0.4);
+}
+
+/* ===== ВЕРХНЯЯ ПАНЕЛЬ ===== */
+.top-panel {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 8px;
+  padding: 10px 14px;
+  background: linear-gradient(180deg, var(--coal-700), var(--coal-800));
+  border: 2px solid var(--coal-900);
+  color: var(--phos-bright);
+  font-family: 'VT323', monospace;
+  box-shadow:
+    inset 0 0 40px rgba(124,255,124,0.08),
+    inset 0 2px 0 rgba(255,255,255,0.05),
+    0 4px 10px rgba(0,0,0,0.7);
+  text-shadow: 0 0 6px rgba(124,255,124,0.6);
+  position: relative;
+}
+.top-panel::before {
+  content: "";
+  position: absolute;
+  inset: 2px;
+  background: repeating-linear-gradient(0deg,
+    transparent 0 2px, rgba(0,0,0,0.3) 2px 3px);
+  pointer-events: none;
+}
+.status-box {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  padding: 0 6px;
+  border-right: 1px dashed rgba(124,255,124,0.15);
+}
+.status-box:last-child { border-right: none; }
+.status-box.warning strong {
+  color: var(--amber);
+  text-shadow: 0 0 6px rgba(255,184,96,0.6);
+}
+.status-label {
+  font-family: 'VT323', monospace;
+  font-size: 0.85rem;
+  color: rgba(124,255,124,0.55);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+.status-box strong {
+  font-size: 1.6rem;
+  color: var(--phos-bright);
+  font-weight: normal;
+  letter-spacing: 0.03em;
+  font-family: 'VT323', monospace;
+}
+.top-note {
+  font-family: 'VT323', monospace;
+  color: rgba(124,255,124,0.65);
+  font-size: 0.9rem;
+  margin: 2px 0 0;
+}
+
+/* ===== КЛИЕНТ — ОКНО БУДКИ ===== */
+.client-card {
+  position: relative;
+  background: radial-gradient(ellipse at 50% 30%,
+    #2a1f12 0%, #120a04 60%, #060402 100%);
+  border: 4px solid var(--coal-900);
+  padding: 46px 24px 24px;
+  display: grid;
+  grid-template-columns: 220px 1fr;
+  gap: 18px;
+  align-items: center;
+  min-height: 230px;
+  box-shadow:
+    inset 0 0 80px rgba(0,0,0,0.9),
+    inset 0 2px 0 rgba(255,220,160,0.08),
+    0 8px 20px rgba(0,0,0,0.8);
+  overflow: hidden;
+}
+.client-card::before {
+  content: "";
+  position: absolute;
+  inset: -4px;
+  border: 10px solid transparent;
+  background: linear-gradient(135deg,
+    var(--steel-500), var(--steel-700) 40%, var(--steel-900) 100%) border-box;
+  pointer-events: none;
+  z-index: 0;
+  border-radius: 0;
+}
+.client-card::after {
+  content: "ОКНО №1 · ПРИЁМ";
+  position: absolute;
+  top: -14px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--red-soviet);
+  color: var(--paper);
+  font-family: 'Unica One', sans-serif;
+  font-size: 0.75rem;
+  letter-spacing: 0.2em;
+  padding: 4px 14px;
+  border: 2px solid var(--coal-900);
+  box-shadow: 2px 3px 0 rgba(0,0,0,0.8);
+  z-index: 5;
+}
+
+/* Лампа над окном */
+.client-card > .lamp-glow { display: none; }
+
+/* ===== ЛИЦО КЛИЕНТА ===== */
+.client-face {
+  position: relative;
+  width: 180px;
+  height: 220px;
+  margin: 0 auto;
+  z-index: 2;
+  filter: drop-shadow(0 8px 0 rgba(0,0,0,0.6));
+  animation: idle-breathe 4s ease-in-out infinite;
+  transition: transform 0.3s;
+}
+.client-face .face {
+  position: absolute;
+  top: 30px; left: 50%;
+  transform: translateX(-50%);
+  width: 120px; height: 130px;
+  background: var(--skin, #d8b088);
+  border-radius: 46% 46% 40% 40% / 50% 50% 42% 42%;
+  box-shadow:
+    inset -6px -10px 0 rgba(0,0,0,0.18),
+    inset 6px 6px 0 rgba(255,255,255,0.1);
+  image-rendering: pixelated;
+  z-index: 2;
+}
+.client-face .hair {
+  position: absolute;
+  top: 20px; left: 50%;
+  transform: translateX(-50%);
+  width: 130px; height: 60px;
+  background: var(--hair, #3a2612);
+  border-radius: 50% 50% 20% 20% / 70% 70% 30% 30%;
+  z-index: 3;
+}
+.client-face .hat {
+  position: absolute;
+  top: 0; left: 50%;
+  transform: translateX(-50%);
+  width: 140px; height: 46px;
+  background: var(--hat, transparent);
+  border-radius: 20% 20% 0 0;
+  z-index: 4;
+  box-shadow: inset 0 -4px 0 rgba(0,0,0,0.3);
+}
+.client-face .hat::after {
+  content: "";
+  position: absolute;
+  bottom: -6px;
+  left: -8px; right: -8px;
+  height: 10px;
+  background: var(--hat, transparent);
+  filter: brightness(0.7);
+}
+.client-face .eye {
+  position: absolute;
+  top: 80px;
+  width: 14px; height: 14px;
+  background: var(--eye, #1a1509);
+  border-radius: 2px;
+  z-index: 5;
+  box-shadow: inset -2px -2px 0 rgba(255,255,255,0.3);
+}
+.client-face .eye-left { left: calc(50% - 32px); }
+.client-face .eye-right { right: calc(50% - 32px); }
+.client-face .nose {
+  position: absolute;
+  top: 102px; left: 50%;
+  transform: translateX(-50%);
+  width: 10px; height: 20px;
+  background: var(--skin, #d8b088);
+  filter: brightness(0.85);
+  border-radius: 2px;
+  z-index: 5;
+}
+.client-face .mouth {
+  position: absolute;
+  top: 130px; left: 50%;
+  transform: translateX(-50%);
+  width: 36px; height: 8px;
+  background: var(--mouth, #7a3a28);
+  border-radius: 2px;
+  z-index: 5;
+  transition: all 0.1s;
+}
+.client-face .glasses {
+  position: absolute;
+  top: 76px; left: 50%;
+  transform: translateX(-50%);
+  width: 90px; height: 22px;
+  border: 3px solid var(--glasses, transparent);
+  border-radius: 6px;
+  z-index: 6;
+  pointer-events: none;
+}
+.client-face .glasses::before {
+  content: "";
+  position: absolute;
+  top: 8px; left: 40px;
+  width: 10px; height: 3px;
+  background: var(--glasses, transparent);
+}
+.client-face .collar {
+  position: absolute;
+  bottom: 0; left: 50%;
+  transform: translateX(-50%);
+  width: 160px; height: 50px;
+  background: var(--coat, #2a3844);
+  clip-path: polygon(0 100%, 0 50%, 30% 0, 70% 0, 100% 50%, 100% 100%);
+  z-index: 1;
+  box-shadow: inset 0 6px 0 rgba(0,0,0,0.25);
+}
+.client-face .collar::before {
+  content: "";
+  position: absolute;
+  top: 0; left: 50%;
+  transform: translateX(-50%);
+  width: 24px; height: 30px;
+  background: var(--paper);
+  clip-path: polygon(50% 0, 100% 30%, 80% 100%, 20% 100%, 0 30%);
+}
+
+/* === Анимации лица (реальные имена классов из JS) === */
+.client-face.speaking { animation: talk-bob 0.5s steps(2) infinite; }
+.client-face.speaking .mouth { animation: talk-mouth 0.3s steps(2) infinite; }
+@keyframes talk-mouth {
+  0% { height: 8px; width: 36px; border-radius: 2px; }
+  50% { height: 14px; width: 30px; border-radius: 50%; }
+  100% { height: 8px; width: 36px; border-radius: 2px; }
+}
+@keyframes talk-bob {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-2px); }
+}
+.client-face.idle { animation: idle-breathe 4s ease-in-out infinite; }
+@keyframes idle-breathe {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.018); }
+}
+
+/* Клиент заскучал — Zzz над головой */
+.client-face.sleepy { animation: idle-breathe 6s ease-in-out infinite; filter: brightness(0.9); }
+.client-face.sleepy::after {
+  content: "Zzz";
+  position: absolute;
+  top: -6px; right: 4px;
+  font-family: 'VT323', monospace;
+  font-size: 1.6rem;
+  color: var(--phos-bright);
+  text-shadow: 0 0 4px var(--phos);
+  animation: zzz-float 2s ease-in-out infinite;
+}
+@keyframes zzz-float {
+  0% { opacity: 0; transform: translateY(0); }
+  30% { opacity: 1; }
+  100% { opacity: 0; transform: translateY(-24px); }
+}
+
+/* Долго ждёт — злится */
+.client-face.angry-wait {
+  animation: angry-jitter 0.18s steps(2) infinite;
+  filter: drop-shadow(0 0 6px rgba(161,26,26,0.5)) drop-shadow(0 6px 0 rgba(0,0,0,0.6));
+}
+@keyframes angry-jitter {
+  0% { transform: translate(0,0) rotate(0); }
+  25% { transform: translate(-2px,1px) rotate(-1deg); }
+  50% { transform: translate(2px,-1px) rotate(1deg); }
+  75% { transform: translate(-1px,-2px) rotate(-0.5deg); }
+  100% { transform: translate(0,0) rotate(0); }
+}
+
+/* Одобрили — радуется */
+.client-face.happy { animation: happy-hop 0.5s ease-in-out 3; }
+@keyframes happy-hop {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-14px) rotate(-2deg); }
+}
+
+/* Отказали — бесится */
+.client-face.angry-decision {
+  animation: angry-decision 0.25s steps(2) 6;
+  filter: drop-shadow(0 0 10px var(--red-stamp)) drop-shadow(0 6px 0 rgba(0,0,0,0.7));
+}
+@keyframes angry-decision {
+  0% { transform: translate(0,0) rotate(0); }
+  20% { transform: translate(-4px,2px) rotate(-3deg); }
+  40% { transform: translate(5px,-2px) rotate(3deg); }
+  60% { transform: translate(-3px,-3px) rotate(-2deg); }
+  80% { transform: translate(3px,4px) rotate(2deg); }
+  100% { transform: translate(0,0) rotate(0); }
+}
+
+/* === Правая часть client-card: описание клиента === */
+.client-copy {
+  position: relative;
+  z-index: 2;
+  color: var(--paper);
+}
+.client-copy .status-label {
+  display: block;
+  font-family: 'Unica One', sans-serif;
+  font-size: 0.78rem;
+  letter-spacing: 0.22em;
+  color: var(--ochre);
+  text-transform: uppercase;
+  margin-bottom: 6px;
+}
+.client-copy #clientNamePlate,
+.client-copy strong {
+  display: block;
+  font-family: 'Unica One', sans-serif;
+  font-size: 1.5rem;
+  letter-spacing: 0.1em;
+  color: var(--paper);
+  text-shadow: 2px 2px 0 var(--coal-900);
+  margin-bottom: 10px;
+  text-transform: uppercase;
+}
+.client-copy p {
+  background: var(--paper);
+  color: var(--ink);
+  font-family: 'Special Elite', monospace;
+  font-size: 0.95rem;
+  padding: 12px 16px 12px 36px;
+  margin: 0;
+  border: 2px solid var(--coal-900);
+  box-shadow: 3px 4px 0 rgba(0,0,0,0.7);
+  position: relative;
+  min-height: 50px;
+}
+.client-copy p::before {
+  content: "»";
+  position: absolute;
+  top: 6px; left: 10px;
+  font-family: 'Unica One', sans-serif;
+  font-size: 1.6rem;
+  color: var(--red-blood);
+  line-height: 1;
+}
+
+/* === Токен очереди === */
+.client-token {
+  position: absolute;
+  top: 10px;
+  right: 12px;
+  z-index: 5;
+  background: var(--brass);
+  color: var(--ink);
+  font-family: 'Unica One', sans-serif;
+  font-size: 0.72rem;
+  letter-spacing: 0.16em;
+  padding: 4px 10px;
+  border: 2px solid var(--coal-900);
+  box-shadow: 2px 2px 0 rgba(0,0,0,0.7);
+  text-transform: uppercase;
+}
+
+/* === Сцена СБ внутри client-card === */
+.security-scene {
+  position: absolute;
+  inset: 0;
+  z-index: 20;
+  background: radial-gradient(ellipse at center,
+    rgba(161,26,26,0.4), rgba(0,0,0,0.92) 70%);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  animation: security-bg 0.5s ease;
+  pointer-events: none;
+}
+.security-scene.active { display: flex; }
+@keyframes security-bg {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+.security-scene strong {
+  font-family: 'Unica One', sans-serif;
+  font-size: 3.5rem;
+  letter-spacing: 0.3em;
+  color: var(--paper);
+  background: var(--red-blood);
+  padding: 12px 30px;
+  border: 4px solid var(--coal-900);
+  box-shadow: 6px 8px 0 rgba(0,0,0,0.8);
+  animation: security-label 0.6s cubic-bezier(0.3,1.8,0.5,1);
+  z-index: 3;
+}
+@keyframes security-label {
+  0% { transform: scale(0) rotate(-10deg); opacity: 0; }
+  60% { transform: scale(1.1) rotate(2deg); opacity: 1; }
+  100% { transform: scale(1) rotate(-3deg); opacity: 1; }
+}
+.guard {
+  position: absolute;
+  bottom: 10%;
+  width: 60px; height: 130px;
+  background: linear-gradient(180deg, #2a3a1a 0%, #1a2510 100%);
+  border: 3px solid var(--coal-900);
+  clip-path: polygon(20% 0, 80% 0, 85% 30%, 95% 40%, 95% 100%, 5% 100%, 5% 40%, 15% 30%);
+  z-index: 2;
+}
+.guard-left { left: -100px; animation: guard-left-run 0.8s forwards; }
+.guard-right { right: -100px; animation: guard-right-run 0.8s forwards; }
+@keyframes guard-left-run {
+  from { left: -100px; }
+  to { left: 20%; }
+}
+@keyframes guard-right-run {
+  from { right: -100px; }
+  to { right: 20%; }
+}
+
+/* ===== ГЛАВНАЯ СЕТКА СТОЛА ===== */
+.desk-grid {
+  display: grid;
+  grid-template-columns: 1.55fr 1fr;
+  gap: 16px;
+  align-items: start;
+}
+
+/* === Заявка (левая колонка) === */
+.application-area {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.document-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 12px;
+  padding: 0 4px;
+  color: var(--paper);
+}
+.document-kicker {
+  display: block;
+  font-family: 'Unica One', sans-serif;
+  font-size: 0.72rem;
+  letter-spacing: 0.3em;
+  color: var(--ochre);
+  text-transform: uppercase;
+}
+.document-header h2 {
+  font-family: 'Unica One', sans-serif;
+  font-size: 1.5rem;
+  letter-spacing: 0.1em;
+  color: var(--paper);
+  text-shadow: 2px 2px 0 var(--coal-900);
+  margin: 2px 0 0;
+  text-transform: uppercase;
+}
+.case-number {
+  font-family: 'Unica One', sans-serif;
+  font-size: 0.9rem;
+  letter-spacing: 0.2em;
+  color: var(--paper);
+  background: var(--red-soviet);
+  padding: 4px 12px;
+  border: 2px solid var(--coal-900);
+  box-shadow: 2px 3px 0 rgba(0,0,0,0.7);
+  text-transform: uppercase;
+}
+
+/* === Бумажная заявка === */
+.application-card {
+  position: relative;
+  background: var(--paper);
+  color: var(--ink);
+  padding: 22px 26px 26px 52px;
+  border: 2px solid var(--coal-900);
+  font-family: 'Special Elite', monospace;
+  font-size: 0.94rem;
+  line-height: 1.65;
+  letter-spacing: 0.01em;
+  box-shadow:
+    10px 12px 0 rgba(0,0,0,0.6),
+    inset 0 0 0 1px rgba(0,0,0,0.06),
+    inset 0 0 80px rgba(180,140,80,0.12);
+  background-image:
+    radial-gradient(ellipse at 10% 15%, rgba(120,70,30,0.10), transparent 25%),
+    radial-gradient(ellipse at 85% 80%, rgba(120,70,30,0.12), transparent 30%),
+    radial-gradient(circle at 70% 12%, rgba(80,50,20,0.18) 0 14px, transparent 15px),
+    linear-gradient(180deg, var(--paper), var(--paper));
+  min-height: 360px;
+}
+.application-card::before {
+  content: "";
+  position: absolute;
+  top: 14px; bottom: 0;
+  left: 18px;
+  width: 2px;
+  background: repeating-linear-gradient(180deg,
+    var(--paper-edge) 0 2px, transparent 2px 12px);
+  opacity: 0.6;
+}
+.application-card::after {
+  content: "";
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 14px;
+  background: repeating-linear-gradient(-45deg,
+    var(--red-soviet) 0 8px,
+    var(--red-blood) 8px 16px);
+  border-bottom: 2px solid var(--coal-900);
+}
+
+.paper-title {
+  margin-bottom: 14px;
+  padding-bottom: 10px;
+  border-bottom: 2px solid var(--ink);
+  position: relative;
+}
+.paper-title span {
+  display: block;
+  font-family: 'Special Elite', monospace;
+  font-size: 0.8rem;
+  color: var(--ink-soft);
+  letter-spacing: 0.1em;
+}
+.paper-title strong {
+  display: block;
+  font-family: 'Unica One', sans-serif;
+  font-size: 1.4rem;
+  letter-spacing: 0.22em;
+  color: var(--red-blood);
+  text-transform: uppercase;
+  margin-top: 4px;
+}
+
+/* === Вкладки документов === */
+.document-tabs {
+  display: flex;
+  gap: 0;
+  margin: 12px 0 0;
+  position: relative;
+  z-index: 4;
+}
+.doc-tab {
+  flex: 1;
+  padding: 10px 8px 12px;
+  background: linear-gradient(180deg,
+    var(--paper-dark) 0%, var(--paper-shade) 100%);
+  color: var(--ink-soft);
+  border: 2px solid var(--coal-900);
+  border-bottom: none;
+  font-family: 'Unica One', sans-serif;
+  font-size: 0.78rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  cursor: pointer;
+  position: relative;
+  transition: all 0.12s;
+  margin-right: -2px;
+  box-shadow: inset 0 -4px 8px rgba(0,0,0,0.15);
+}
+.doc-tab::before {
+  content: "";
+  position: absolute;
+  top: 3px; left: 50%;
+  transform: translateX(-50%);
+  width: 22px; height: 3px;
+  background: var(--brass);
+  border: 1px solid var(--coal-900);
+  border-radius: 1px;
+}
+.doc-tab:hover {
+  background: linear-gradient(180deg, var(--paper), var(--paper-dark));
+  color: var(--ink);
+}
+.doc-tab.active {
+  background: var(--paper);
+  color: var(--red-blood);
+  transform: translateY(-3px);
+  z-index: 2;
+  box-shadow:
+    0 -4px 12px rgba(0,0,0,0.3),
+    inset 0 3px 0 var(--red-soviet);
+}
+
+/* === Стек документов === */
+.document-stack {
+  background: var(--paper);
+  border: 1px solid var(--paper-edge);
+  border-top: 2px solid var(--coal-900);
+  padding: 16px 16px 14px;
+  position: relative;
+  z-index: 1;
+}
+.doc-viewer {
+  font-family: 'Special Elite', monospace;
+  font-size: 0.95rem;
+  color: var(--ink);
+  line-height: 1.7;
+  min-height: 120px;
+}
+.doc-viewer h3,
+.doc-viewer h4 {
+  font-family: 'Unica One', sans-serif;
+  font-size: 0.9rem;
+  letter-spacing: 0.18em;
+  color: var(--red-blood);
+  text-transform: uppercase;
+  margin: 10px 0 4px;
+  padding-bottom: 3px;
+  border-bottom: 1px dashed var(--paper-edge);
+}
+.doc-viewer dl {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: 3px 14px;
+  margin: 8px 0;
+}
+.doc-viewer dt {
+  font-family: 'Unica One', sans-serif;
+  letter-spacing: 0.08em;
+  color: var(--ink-soft);
+  text-transform: uppercase;
+  font-size: 0.78rem;
+  padding-top: 2px;
+}
+.doc-viewer dd {
+  margin: 0;
+  color: var(--ink);
+  font-weight: bold;
+  font-size: 0.94rem;
+  border-bottom: 1px dotted var(--paper-edge);
+  padding-bottom: 2px;
+}
+.doc-viewer ul {
+  list-style: none;
+  padding-left: 0;
+  margin: 8px 0;
+}
+.doc-viewer ul li {
+  padding: 3px 0 3px 20px;
+  position: relative;
+  border-bottom: 1px dotted var(--paper-edge);
+}
+.doc-viewer ul li::before {
+  content: "■";
+  position: absolute;
+  left: 4px; top: 3px;
+  color: var(--red-blood);
+  font-size: 0.7rem;
+}
+.doc-viewer p {
+  margin: 6px 0;
+}
+.doc-viewer strong { color: var(--ink); }
+
+/* === Служебная заметка === */
+.note-box {
+  margin-top: 12px;
+  padding: 10px 12px;
+  background: #f0e2b5;
+  border: 1px dashed var(--ochre);
+  border-left: 4px solid var(--ochre);
+  color: var(--ink);
+  font-family: 'Special Elite', monospace;
+  font-size: 0.9rem;
+  position: relative;
+}
+.note-box span {
+  display: block;
+  font-family: 'Unica One', sans-serif;
+  font-size: 0.72rem;
+  letter-spacing: 0.2em;
+  color: var(--rust);
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+.note-box p { margin: 0; }
+
+/* === Консоль инспекции === */
+.inspection-console {
+  display: flex;
+  gap: 12px;
+  align-items: stretch;
+  margin-top: 14px;
+}
+.inspect-button {
+  flex-shrink: 0;
+  padding: 12px 18px;
+  font-family: 'Unica One', sans-serif;
+  font-size: 0.85rem;
+  letter-spacing: 0.2em;
+  color: var(--ink);
+  background: linear-gradient(180deg, var(--ochre), #7a5a1a);
+  border: 2px solid var(--coal-900);
+  cursor: pointer;
+  text-transform: uppercase;
+  box-shadow:
+    0 4px 0 var(--coal-900),
+    inset 0 2px 0 rgba(255,255,255,0.15);
+  transition: transform 0.08s, box-shadow 0.08s;
+}
+.inspect-button:hover { transform: translateY(-1px); }
+.inspect-button:active {
+  transform: translateY(3px);
+  box-shadow: 0 1px 0 var(--coal-900);
+}
+.inspect-button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  filter: grayscale(0.7);
+}
+.inspection-result {
+  flex: 1;
+  background: #f0e2b5;
+  border: 1px dashed var(--ochre);
+  color: var(--ink);
+  font-family: 'Special Elite', monospace;
+  font-size: 0.9rem;
+  padding: 8px 12px;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+}
+
+/* === Штамп-оверлей === */
+.stamp-overlay {
+  position: absolute;
+  top: 45%;
+  left: 50%;
+  width: 260px;
+  height: 110px;
+  transform: translate(-50%,-50%) rotate(-12deg) scale(0.1);
+  opacity: 0;
+  pointer-events: none;
+  color: var(--red-blood);
+  font-family: 'Unica One', sans-serif;
+  font-size: 2rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 6px double var(--red-blood);
+  background:
+    radial-gradient(ellipse at 30% 40%, rgba(161,26,26,0.2), transparent 60%),
+    radial-gradient(ellipse at 75% 65%, rgba(161,26,26,0.15), transparent 60%);
+  box-shadow: inset 0 0 0 3px rgba(122,15,15,0.35);
+  z-index: 30;
+}
+.stamp-overlay::before {
+  content: "";
+  position: absolute;
+  inset: 8px;
+  border: 2px dashed rgba(122,15,15,0.45);
+  pointer-events: none;
+}
+/* JS ставит .show для появления и .reject для красных штампов;
+   отсутствие .reject = зелёный одобрительный штамп */
+.stamp-overlay.show {
+  animation: stamp-hit 0.45s cubic-bezier(0.3, 1.8, 0.5, 1) forwards;
+  color: var(--green-stamp);
+  border-color: var(--green-stamp);
+  box-shadow: inset 0 0 0 3px rgba(74,107,26,0.35);
+}
+.stamp-overlay.show::before {
+  border-color: rgba(74,107,26,0.45);
+}
+.stamp-overlay.show.reject {
+  color: var(--red-blood);
+  border-color: var(--red-blood);
+  box-shadow: inset 0 0 0 3px rgba(122,15,15,0.35);
+}
+.stamp-overlay.show.reject::before {
+  border-color: rgba(122,15,15,0.45);
+}
+@keyframes stamp-hit {
+  0% { transform: translate(-50%,-50%) rotate(-30deg) scale(3); opacity: 0; }
+  40% { transform: translate(-50%,-50%) rotate(-10deg) scale(0.92); opacity: 1; }
+  60% { transform: translate(-50%,-50%) rotate(-14deg) scale(1.06); }
+  100% { transform: translate(-50%,-50%) rotate(-12deg) scale(1); opacity: 0.95; }
+}
+@keyframes stamp-hit-red { /* алиас */
+  0% { transform: translate(-50%,-50%) rotate(-30deg) scale(3); opacity: 0; }
+  100% { transform: translate(-50%,-50%) rotate(-12deg) scale(1); opacity: 0.95; }
+}
+
+/* === Полёт бумаги === */
+.fly-to-correct {
+  animation: fly-to-correct 0.65s cubic-bezier(0.4, 0.1, 0.2, 1) forwards;
+}
+@keyframes fly-to-correct {
+  0% { transform: translate(0,0) scale(1) rotate(0); opacity: 1; }
+  100% {
+    transform: translate(var(--fly-x), var(--fly-y)) scale(0.15) rotate(-15deg);
+    opacity: 0.15;
+  }
+}
+
+/* === Фидбек === */
+.decision-feedback {
+  background: var(--coal-800);
+  border: 1px dashed var(--ochre);
+  color: var(--paper-dark);
+  padding: 8px 12px;
+  font-family: 'VT323', monospace;
+  font-size: 1.1rem;
+  min-height: 40px;
+  letter-spacing: 0.03em;
+  text-shadow: 0 0 3px rgba(176,138,44,0.3);
+}
+
+/* === РЯД ШТАМПОВ (кнопки решений) === */
+.stamp-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+  padding: 18px 14px 14px;
+  margin-top: 4px;
+  background: linear-gradient(180deg,
+    rgba(30,20,10,0.6) 0%, rgba(10,6,3,0.85) 100%);
+  border: 2px solid var(--coal-900);
+  border-top: 4px solid var(--wood);
+  box-shadow:
+    inset 0 2px 0 rgba(255,200,120,0.06),
+    0 -6px 14px rgba(0,0,0,0.5);
+  position: relative;
+}
+.decision-button {
+  position: relative;
+  padding: 22px 8px 18px;
+  font-family: 'Unica One', sans-serif;
+  font-size: 1.05rem;
+  letter-spacing: 0.2em;
+  color: var(--paper);
+  background: linear-gradient(180deg, var(--coal-500) 0%, var(--coal-700) 100%);
+  border: 2px solid var(--coal-900);
+  border-radius: 4px 4px 0 0;
+  cursor: pointer;
+  text-transform: uppercase;
+  box-shadow:
+    0 6px 0 var(--coal-900),
+    0 10px 18px rgba(0,0,0,0.7),
+    inset 0 2px 0 rgba(255,255,255,0.15),
+    inset 0 -8px 14px rgba(0,0,0,0.35);
+  transition: transform 0.06s, box-shadow 0.06s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+.decision-button::before {
+  content: "";
+  position: absolute;
+  top: -14px; left: 50%;
+  transform: translateX(-50%);
+  width: 38%; height: 14px;
+  background: linear-gradient(180deg,
+    var(--wood-light), var(--wood) 50%, var(--wood-deep));
+  border: 2px solid var(--coal-900);
+  border-bottom: none;
+  border-radius: 5px 5px 0 0;
+  box-shadow: inset 0 2px 0 rgba(255,220,160,0.2);
+}
+.decision-button::after {
+  content: "";
+  position: absolute;
+  bottom: -2px;
+  left: 0; right: 0;
+  height: 3px;
+  background: var(--coal-900);
+}
+.decision-button .stamp-knob { display: none; }
+.decision-button .keycap {
+  font-family: 'VT323', monospace;
+  font-size: 1rem;
+  background: var(--coal-900);
+  color: var(--phos-bright);
+  padding: 2px 6px;
+  border: 1px solid rgba(124,255,124,0.3);
+  margin: 0 2px;
+  text-shadow: 0 0 4px rgba(124,255,124,0.6);
+  letter-spacing: 0;
+  min-width: 22px;
+  text-align: center;
+  line-height: 1;
+}
+.decision-button.approve-button {
+  background: linear-gradient(180deg, #6a8f2a, #3d5818);
+  color: var(--paper);
+}
+.decision-button.reject-button {
+  background: linear-gradient(180deg, #8a3818, #5a1e0c);
+  color: var(--paper);
+}
+.decision-button.fraud-button {
+  background: linear-gradient(180deg, var(--red-soviet), var(--red-blood));
+  color: var(--paper);
+  animation: red-warn 2.3s ease-in-out infinite;
+}
+.decision-button:hover { transform: translateY(-2px); }
+.decision-button:active {
+  transform: translateY(4px);
+  box-shadow:
+    0 2px 0 var(--coal-900),
+    0 4px 8px rgba(0,0,0,0.6),
+    inset 0 2px 0 rgba(0,0,0,0.2),
+    inset 0 -4px 10px rgba(0,0,0,0.35);
+  animation: stamp-hit-btn 0.3s ease;
+}
+.decision-button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  filter: grayscale(0.7);
+}
+@keyframes stamp-hit-btn {
+  0% { transform: translateY(4px) scale(1); }
+  40% { transform: translateY(6px) scale(0.97); }
+  100% { transform: translateY(4px) scale(1); }
+}
+
+/* ===== НИЖНЯЯ ПАНЕЛЬ (правая колонка) ===== */
+.bottom-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.panel-section {
+  background: linear-gradient(180deg, var(--coal-700) 0%, var(--coal-800) 100%);
+  border: 2px solid var(--coal-900);
+  padding: 12px 14px;
+  box-shadow:
+    inset 0 2px 0 rgba(255,255,255,0.04),
+    0 4px 8px rgba(0,0,0,0.6);
+  color: var(--paper-dark);
+}
+.panel-section .status-label {
+  display: block;
+  font-family: 'Unica One', sans-serif;
+  font-size: 0.78rem;
+  letter-spacing: 0.22em;
+  color: var(--ochre);
+  text-transform: uppercase;
+  margin-bottom: 8px;
+  border-bottom: 1px dashed var(--coal-600);
+  padding-bottom: 4px;
+  text-shadow: 1px 1px 0 var(--coal-900);
+}
+
+.rulebook ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.rulebook li {
+  padding: 4px 0 4px 20px;
+  position: relative;
+  font-family: 'Special Elite', monospace;
+  font-size: 0.86rem;
+  color: var(--paper-dark);
+  border-bottom: 1px dashed var(--coal-600);
+  line-height: 1.4;
+}
+.rulebook li:last-child { border-bottom: none; }
+.rulebook li::before {
+  content: "§";
+  position: absolute;
+  left: 4px; top: 4px;
+  color: var(--red-soviet);
+  font-weight: bold;
+  font-family: 'Unica One', sans-serif;
+}
+
+.flag-button {
+  display: block;
+  width: 100%;
+  margin-bottom: 6px;
+  padding: 9px 12px 9px 36px;
+  text-align: left;
+  background: var(--coal-600);
+  border: 1px solid var(--coal-900);
+  color: var(--paper-dark);
+  font-family: 'Special Elite', monospace;
+  font-size: 0.88rem;
+  cursor: pointer;
+  position: relative;
+  letter-spacing: 0.02em;
+  transition: all 0.12s;
+}
+.flag-button::before {
+  content: "";
+  position: absolute;
+  left: 10px; top: 50%;
+  transform: translateY(-50%);
+  width: 16px; height: 16px;
+  background: var(--paper);
+  border: 2px solid var(--coal-900);
+}
+.flag-button:hover {
+  background: var(--coal-500);
+  color: var(--paper);
+}
+.flag-button.active {
+  background: var(--rust);
+  color: var(--paper);
+  border-color: var(--red-blood);
+}
+.flag-button.active::before {
+  background: var(--red-soviet);
+}
+.flag-button.active::after {
+  content: "✕";
+  position: absolute;
+  left: 12px; top: 50%;
+  transform: translateY(-50%);
+  font-size: 14px;
+  color: var(--paper);
+  font-weight: bold;
+  line-height: 1;
+}
+
+.suspicion-meter strong {
+  display: block;
+  font-family: 'VT323', monospace;
+  font-size: 1.5rem;
+  color: var(--phos-bright);
+  text-shadow: 0 0 6px rgba(124,255,124,0.5);
+  margin-bottom: 6px;
+}
+.meter-track {
+  width: 100%;
+  height: 12px;
+  background: var(--coal-900);
+  border: 1px solid var(--coal-500);
+  overflow: hidden;
+  position: relative;
+  box-shadow: inset 0 2px 4px rgba(0,0,0,0.8);
+}
+.meter-track::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(90deg,
+    transparent 0 8px, rgba(255,255,255,0.05) 8px 9px);
+  pointer-events: none;
+}
+.meter-fill {
+  height: 100%;
+  background: linear-gradient(90deg,
+    var(--green-stamp), var(--ochre) 60%, var(--red-soviet));
+  box-shadow: 0 0 8px rgba(255,184,96,0.4);
+  transition: width 0.3s;
+}
+
+/* === Журнал решений === */
+.decision-log {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  max-height: 180px;
+  overflow-y: auto;
+  font-family: 'VT323', monospace;
+  font-size: 1rem;
+  color: var(--phos);
+  background: var(--phos-bg);
+  border: 1px solid var(--coal-500);
+  padding: 8px 10px;
+  letter-spacing: 0.03em;
+  text-shadow: 0 0 4px rgba(124,255,124,0.4);
+  box-shadow:
+    inset 0 2px 0 rgba(0,0,0,0.4),
+    inset 0 0 30px rgba(124,255,124,0.06);
+}
+.decision-log li {
+  padding: 2px 6px 2px 20px;
+  border-left: 3px solid transparent;
+  margin-bottom: 1px;
+  position: relative;
+  line-height: 1.3;
+}
+.decision-log li::before {
+  content: "›";
+  position: absolute;
+  left: 6px;
+  color: rgba(124,255,124,0.4);
+}
+.decision-log li.correct {
+  border-left-color: var(--green-stamp);
+  color: var(--phos-bright);
+}
+.decision-log li.wrong {
+  border-left-color: var(--red-stamp);
+  color: #ffb8a0;
+  text-shadow: 0 0 4px rgba(255,100,60,0.4);
+}
+.decision-log::-webkit-scrollbar { width: 6px; }
+.decision-log::-webkit-scrollbar-track { background: var(--coal-900); }
+.decision-log::-webkit-scrollbar-thumb {
+  background: var(--coal-500);
+  border: 1px solid var(--coal-900);
+}
+
+/* ===== ФИНАЛЬНЫЙ ЭКРАН ===== */
+.final-screen {
+  max-width: 820px;
+  margin: 30px auto;
+  padding: 30px 36px 36px;
+  background: var(--paper);
+  color: var(--ink);
+  border: 3px solid var(--coal-900);
+  position: relative;
+  box-shadow:
+    12px 14px 0 rgba(0,0,0,0.7),
+    inset 0 0 0 1px rgba(0,0,0,0.06);
+}
+.final-screen::before {
+  content: "";
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 14px;
+  background: repeating-linear-gradient(-45deg,
+    var(--red-soviet) 0 8px, var(--red-blood) 8px 16px);
+  border-bottom: 2px solid var(--coal-900);
+}
+.final-screen .bank-mark {
+  color: var(--red-blood);
+  margin-top: 8px;
+}
+.final-screen h1 {
+  font-family: 'Unica One', sans-serif;
+  font-size: 2rem;
+  letter-spacing: 0.22em;
+  color: var(--red-blood);
+  text-align: center;
+  margin: 4px 0 20px;
+  text-transform: uppercase;
+  border-bottom: 3px double var(--ink);
+  padding-bottom: 12px;
+}
+.results-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 12px;
+  margin-bottom: 24px;
+}
+.result-card {
+  background: linear-gradient(180deg, var(--paper-dark) 0%, var(--paper) 100%);
+  padding: 12px 14px;
+  border: 1px solid var(--paper-edge);
+  border-left: 4px solid var(--red-blood);
+  box-shadow: 2px 3px 0 rgba(0,0,0,0.15);
+}
+.result-card span {
+  display: block;
+  font-family: 'Unica One', sans-serif;
+  font-size: 0.72rem;
+  letter-spacing: 0.2em;
+  color: var(--ink-soft);
+  text-transform: uppercase;
+}
+.result-card strong {
+  display: block;
+  font-family: 'VT323', monospace;
+  font-size: 1.8rem;
+  color: var(--red-blood);
+  margin-top: 2px;
+}
+
+/* ===== АНИМАЦИИ ===== */
+.approve-flash { animation: approve-flash 0.5s ease; }
+@keyframes approve-flash {
+  0%, 100% {
+    box-shadow:
+      10px 12px 0 rgba(0,0,0,0.6),
+      inset 0 0 0 1px rgba(0,0,0,0.06),
+      inset 0 0 80px rgba(180,140,80,0.12);
+  }
+  50% {
+    box-shadow:
+      0 0 80px rgba(106,143,42,0.8),
+      10px 12px 0 rgba(0,0,0,0.6),
+      inset 0 0 80px rgba(106,143,42,0.3);
+  }
+}
+.reject-shake { animation: reject-shake 0.4s steps(4); }
+@keyframes reject-shake {
+  0%,100% { transform: translate(0,0); }
+  25% { transform: translate(-10px,2px); }
+  50% { transform: translate(8px,-1px); }
+  75% { transform: translate(-4px,3px); }
+}
+
+/* СБ забирает клиента — трясёт клиент-карточку и наклоняет */
+.client-card.security-takeaway {
+  animation: security-takeaway 0.6s ease forwards;
+}
+@keyframes security-takeaway {
+  0% { transform: translate(0,0); filter: brightness(1); }
+  25% { transform: translate(-6px, 2px); filter: brightness(1.1) hue-rotate(-10deg); }
+  50% { transform: translate(8px, -1px) rotate(1deg); filter: brightness(0.9); }
+  75% { transform: translate(-4px, 3px) rotate(-1deg); filter: brightness(1.05); }
+  100% { transform: translate(0,0); filter: brightness(1); }
+}
+
+/* Кнопка-штамп «нажата» (после выбранного решения) */
+.decision-button.pressed {
+  transform: translateY(5px);
+  filter: brightness(0.8);
+  box-shadow:
+    0 1px 0 var(--coal-900),
+    inset 0 2px 0 rgba(0,0,0,0.2),
+    inset 0 -4px 10px rgba(0,0,0,0.45);
+}
+
+/* ===== ОБЩЕЕ ===== */
+button { font-family: inherit; }
+h1, h2, h3, h4 { margin-top: 0; }
+
+button:focus-visible,
+.doc-tab:focus-visible,
+.flag-button:focus-visible {
+  outline: 2px solid var(--ochre);
+  outline-offset: 3px;
+}
+
+/* ===== АДАПТИВ ===== */
+@media (max-width: 1100px) {
+  .app-shell { padding: 20px 110px 30px; }
+  .desk-grid { grid-template-columns: 1.4fr 1fr; }
+}
+@media (max-width: 960px) {
+  .side-decor, .right-posters { width: 70px; }
+  .app-shell { padding: 16px 80px 24px; }
+  .top-panel { grid-template-columns: repeat(3, 1fr); gap: 6px 10px; }
+  .desk-grid { grid-template-columns: 1fr; }
+  .client-card { grid-template-columns: 150px 1fr; padding: 40px 16px 16px; }
+  .client-face { width: 150px; height: 190px; }
+  .client-face .face { width: 100px; height: 110px; }
+  .stamp-row { grid-template-columns: 1fr 1fr; }
+  .intro-screen h1 { font-size: 2.2rem; }
+  .application-card { padding: 18px 18px 22px 44px; font-size: 0.9rem; }
+}
+@media (max-width: 640px) {
+  body { font-size: 14px; }
+  .side-decor, .right-posters { display: none; }
+  .app-shell { padding: 12px 10px 20px; }
+  .top-panel { grid-template-columns: 1fr 1fr; }
+  .client-card { grid-template-columns: 1fr; text-align: center; padding: 40px 14px 14px; }
+  .client-face { width: 130px; height: 160px; margin: 0 auto; }
+  .client-face .face { width: 86px; height: 96px; }
+  .stamp-row { grid-template-columns: 1fr; gap: 10px; }
+  .decision-button { padding: 14px 8px 12px; font-size: 0.9rem; }
+  .intro-screen h1 { font-size: 1.7rem; }
+  .stamp-overlay { width: 190px; height: 80px; font-size: 1.3rem; }
+  .application-card { padding: 16px 14px 18px 32px; }
+  .inspection-console { flex-direction: column; }
+}
+@media (max-height: 780px) {
+  .client-card { min-height: 200px; padding-top: 38px; }
+  .application-card { min-height: 260px; }
+  .decision-log { max-height: 120px; }
+}
+
+/* =============================================================================
+   v3 OVERRIDES — ВСЁ В ОДИН ЭКРАН БЕЗ ВЕРТИКАЛЬНОГО СКРОЛЛА
+   ============================================================================= */
+
+html, body {
+  height: 100vh;
+  min-height: 0;
+  overflow: hidden;
+}
+
+/* Фоновая текстура пусть всё равно фиксирована */
+body {
+  min-height: 0;
+  height: 100vh;
+  overflow: hidden;
+}
+
+.app-shell {
+  height: 100vh;
+  max-width: 100vw;
+  padding: 10px 110px 10px;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* Боковые декорации остаются, но уже */
+.side-decor, .right-posters { width: 96px; }
+
+/* СТАРТ и ФИНАЛ — остаются прокручиваемыми внутри себя (на случай малого экрана) */
+.intro-screen.screen-active,
+.final-screen.screen-active {
+  height: 100%;
+  overflow-y: auto;
+  padding: 16px 0 16px;
+}
+.intro-screen .bureau-scene { height: 170px; margin-bottom: 16px; }
+.intro-screen h1 { font-size: 2.4rem; margin: 0 0 8px; }
+.intro-copy { margin: 0 auto 14px; font-size: 0.92rem; }
+.author-card { margin-bottom: 16px; gap: 10px; }
+.author-card > div { padding: 10px 12px; font-size: 0.82rem; }
+.primary-button { padding: 12px 36px; font-size: 1rem; margin-top: 12px; }
+.bank-mark { margin-bottom: 6px; font-size: 0.72rem; }
+
+/* ===== ИГРОВОЙ ЭКРАН — ТРЁХКОЛОННАЯ СЕТКА В 100VH ===== */
+.game-screen.screen-active {
+  display: grid;
+  grid-template-columns: 260px minmax(0, 1fr) 280px;
+  grid-template-rows: auto minmax(0, 1fr);
+  grid-template-areas:
+    "top  top  top"
+    "cli  app  pnl";
+  gap: 10px;
+  height: 100%;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.top-panel {
+  grid-area: top;
+  grid-template-columns: repeat(6, 1fr);
+  padding: 6px 12px;
+  gap: 4px;
+  min-height: 0;
+}
+.top-panel .status-box { padding: 0 6px; }
+.top-panel .status-label { font-size: 0.72rem; letter-spacing: 0.08em; }
+.top-panel .status-box strong { font-size: 1.25rem; line-height: 1.1; }
+.top-panel .top-note { font-size: 0.75rem; margin: 0; line-height: 1.1; }
+
+/* ===== ЛЕВАЯ КОЛОНКА — КЛИЕНТ ===== */
+.client-card {
+  grid-area: cli;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 30px 14px 14px;
+  min-height: 0;
+  min-width: 0;
+  overflow: hidden;
+}
+.client-card::after { font-size: 0.66rem; padding: 3px 10px; top: -10px; }
+
+.client-face {
+  width: 150px;
+  height: 180px;
+  margin: 0 auto;
+  flex-shrink: 0;
+}
+.client-face .face { width: 104px; height: 112px; top: 28px; }
+.client-face .hair { width: 112px; height: 52px; top: 18px; }
+.client-face .hat { width: 120px; height: 40px; top: 0; }
+.client-face .eye { top: 66px; width: 12px; height: 12px; }
+.client-face .eye-left { left: calc(50% - 28px); }
+.client-face .eye-right { right: calc(50% - 28px); }
+.client-face .nose { top: 86px; width: 8px; height: 16px; }
+.client-face .mouth { top: 110px; width: 30px; height: 7px; }
+.client-face .glasses { top: 62px; width: 76px; height: 20px; }
+.client-face .glasses::before { left: 33px; }
+.client-face .collar { width: 140px; height: 42px; }
+
+.client-copy {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.client-copy .status-label { font-size: 0.68rem; letter-spacing: 0.18em; margin-bottom: 2px; }
+.client-copy #clientNamePlate,
+.client-copy strong { font-size: 1.05rem; margin-bottom: 4px; line-height: 1.2; }
+.client-copy p {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  font-size: 0.84rem;
+  padding: 9px 12px 9px 28px;
+  line-height: 1.4;
+}
+.client-copy p::before { font-size: 1.3rem; top: 4px; left: 8px; }
+.client-token { top: 6px; right: 8px; font-size: 0.62rem; padding: 3px 8px; }
+
+/* ===== СРЕДНЯЯ КОЛОНКА — ЗАЯВКА ===== */
+.desk-grid {
+  display: contents; /* ключ: элементы desk-grid попадают в game-screen grid напрямую */
+}
+
+.application-area {
+  grid-area: app;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-height: 0;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.document-header {
+  padding: 0 2px;
+  gap: 10px;
+  flex-shrink: 0;
+}
+.document-kicker { font-size: 0.66rem; letter-spacing: 0.24em; }
+.document-header h2 { font-size: 1.15rem; letter-spacing: 0.08em; margin: 0; }
+.case-number { font-size: 0.78rem; padding: 3px 10px; }
+
+.application-card {
+  flex: 1;
+  min-height: 0;
+  padding: 14px 18px 14px 42px;
+  font-size: 0.86rem;
+  line-height: 1.5;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  box-shadow:
+    6px 8px 0 rgba(0,0,0,0.6),
+    inset 0 0 0 1px rgba(0,0,0,0.06),
+    inset 0 0 60px rgba(180,140,80,0.1);
+  overflow: hidden;
+}
+.application-card::before { top: 10px; }
+.application-card::after { height: 10px; }
+
+.paper-title { margin-bottom: 2px; padding-bottom: 6px; flex-shrink: 0; }
+.paper-title span { font-size: 0.72rem; }
+.paper-title strong { font-size: 1.05rem; margin-top: 2px; }
+
+.document-tabs { margin: 4px 0 0; flex-shrink: 0; }
+.doc-tab { padding: 7px 6px 9px; font-size: 0.7rem; letter-spacing: 0.18em; }
+.doc-tab::before { width: 18px; height: 2px; top: 2px; }
+
+.document-stack {
+  flex: 1;
+  min-height: 0;
+  padding: 10px 12px 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  overflow: hidden;
+}
+.doc-viewer {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  font-size: 0.86rem;
+  line-height: 1.5;
+  padding-right: 4px;
+}
+.doc-viewer::-webkit-scrollbar { width: 6px; }
+.doc-viewer::-webkit-scrollbar-track { background: transparent; }
+.doc-viewer::-webkit-scrollbar-thumb { background: var(--paper-edge); border-radius: 3px; }
+.doc-viewer h3, .doc-viewer h4 { font-size: 0.78rem; margin: 6px 0 2px; padding-bottom: 2px; }
+.doc-viewer dl { grid-template-columns: max-content 1fr; gap: 1px 10px; margin: 4px 0; }
+.doc-viewer dt { font-size: 0.7rem; padding-top: 1px; }
+.doc-viewer dd { font-size: 0.84rem; padding-bottom: 1px; }
+.doc-viewer ul li { padding: 2px 0 2px 16px; }
+.doc-viewer p { margin: 3px 0; }
+
+.note-box {
+  flex-shrink: 0;
+  margin-top: 0;
+  padding: 6px 10px;
+  font-size: 0.78rem;
+}
+.note-box span { font-size: 0.66rem; margin-bottom: 2px; }
+
+.inspection-console { margin-top: 0; gap: 8px; flex-shrink: 0; }
+.inspect-button { padding: 8px 14px; font-size: 0.76rem; }
+.inspection-result { font-size: 0.8rem; padding: 5px 10px; min-height: 34px; }
+
+.decision-feedback {
+  padding: 5px 10px;
+  font-size: 0.95rem;
+  min-height: 30px;
+  flex-shrink: 0;
+  line-height: 1.3;
+}
+
+.stamp-row {
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  padding: 12px 10px 8px;
+  flex-shrink: 0;
+}
+.decision-button {
+  padding: 14px 6px 10px;
+  font-size: 0.9rem;
+  letter-spacing: 0.14em;
+  gap: 6px;
+  box-shadow:
+    0 4px 0 var(--coal-900),
+    0 6px 12px rgba(0,0,0,0.6),
+    inset 0 2px 0 rgba(255,255,255,0.15),
+    inset 0 -6px 10px rgba(0,0,0,0.35);
+}
+.decision-button::before {
+  top: -10px;
+  height: 10px;
+  width: 34%;
+}
+.decision-button .keycap {
+  font-size: 0.85rem;
+  padding: 1px 5px;
+  min-width: 18px;
+}
+
+/* Штамп-оверлей — компактнее */
+.stamp-overlay { width: 220px; height: 90px; font-size: 1.5rem; }
+
+/* ===== ПРАВАЯ КОЛОНКА — ПРАВИЛА + ФЛАГИ + СЧЁТЧИК + ЖУРНАЛ ===== */
+.bottom-panel {
+  grid-area: pnl;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-height: 0;
+  min-width: 0;
+  overflow: hidden;
+}
+.bottom-panel .panel-section {
+  padding: 8px 12px;
+  flex-shrink: 0;
+  overflow: hidden;
+}
+.bottom-panel .panel-section:last-child,
+.bottom-panel .panel-section:has(.decision-log) {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+.bottom-panel .panel-section .status-label {
+  font-size: 0.68rem;
+  letter-spacing: 0.2em;
+  margin-bottom: 5px;
+  padding-bottom: 3px;
+}
+
+.rulebook li { padding: 2px 0 2px 18px; font-size: 0.76rem; line-height: 1.3; }
+.rulebook li::before { top: 2px; font-size: 0.9rem; }
+
+.flag-button {
+  padding: 6px 10px 6px 30px;
+  font-size: 0.78rem;
+  margin-bottom: 4px;
+}
+.flag-button::before { width: 14px; height: 14px; left: 8px; }
+.flag-button.active::after { font-size: 12px; left: 10px; }
+
+.suspicion-meter strong { font-size: 1.15rem; margin-bottom: 4px; }
+.meter-track { height: 10px; }
+
+.decision-log {
+  flex: 1;
+  min-height: 0;
+  max-height: none;
+  font-size: 0.9rem;
+  padding: 6px 8px;
+  overflow-y: auto;
+}
+.decision-log li { padding: 1px 4px 1px 16px; line-height: 1.3; }
+.decision-log li::before { left: 4px; }
+
+/* ===== ДОПОЛНИТЕЛЬНЫЕ АДАПТИВЫ v3 ===== */
+/* Экраны ниже 900px высоты — дальше ужимаем */
+@media (max-height: 860px) {
+  .client-face { width: 130px; height: 155px; }
+  .client-face .face { width: 90px; height: 96px; top: 22px; }
+  .client-face .hair { width: 98px; height: 44px; top: 14px; }
+  .client-face .hat { width: 106px; height: 34px; }
+  .client-face .eye { top: 54px; }
+  .client-face .nose { top: 72px; height: 14px; }
+  .client-face .mouth { top: 92px; width: 26px; height: 6px; }
+  .client-face .glasses { top: 50px; width: 66px; height: 18px; }
+  .client-face .collar { width: 120px; height: 36px; }
+  .application-card { padding: 12px 14px 12px 36px; font-size: 0.82rem; }
+  .paper-title strong { font-size: 0.98rem; }
+  .doc-viewer { font-size: 0.82rem; }
+  .decision-button { padding: 12px 6px 10px; font-size: 0.82rem; }
+  .top-panel .status-box strong { font-size: 1.1rem; }
+  .bottom-panel .panel-section { padding: 7px 10px; }
+  .rulebook li { font-size: 0.72rem; }
+  .flag-button { padding: 5px 8px 5px 26px; font-size: 0.74rem; }
+}
+
+@media (max-height: 720px) {
+  .top-panel { padding: 4px 10px; }
+  .top-panel .status-box strong { font-size: 1rem; }
+  .client-face { width: 116px; height: 140px; }
+  .client-face .face { width: 80px; height: 86px; top: 20px; }
+  .client-face .hair { width: 88px; height: 40px; top: 12px; }
+  .client-face .hat { width: 96px; height: 30px; }
+  .client-face .eye { top: 48px; width: 10px; height: 10px; }
+  .client-face .nose { top: 64px; height: 12px; }
+  .client-face .mouth { top: 82px; width: 22px; height: 5px; }
+  .client-face .glasses { top: 44px; width: 58px; height: 16px; }
+  .client-face .collar { width: 106px; height: 30px; }
+  .application-card { padding: 10px 12px 10px 32px; }
+  .paper-title { padding-bottom: 4px; }
+  .paper-title strong { font-size: 0.9rem; }
+  .document-tabs { margin-top: 2px; }
+  .doc-tab { padding: 5px 4px 7px; font-size: 0.66rem; }
+  .document-stack { padding: 8px 10px 6px; }
+  .inspect-button { padding: 6px 12px; font-size: 0.72rem; }
+  .decision-button { padding: 10px 6px 8px; font-size: 0.78rem; }
+  .stamp-row { padding: 8px 8px 6px; gap: 8px; }
+}
+
+/* Экраны уже — убираем правую колонку правил и показываем её над штампами */
+@media (max-width: 1100px) {
+  .app-shell { padding: 8px 80px 8px; }
+  .game-screen.screen-active {
+    grid-template-columns: 220px minmax(0,1fr);
+    grid-template-areas:
+      "top  top"
+      "cli  app"
+      "pnl  pnl";
+    grid-template-rows: auto minmax(0,1fr) 160px;
+  }
+  .bottom-panel {
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 6px;
+    overflow: auto;
+  }
+  .bottom-panel .panel-section {
+    flex: 1 1 calc(50% - 3px);
+    min-width: 180px;
+  }
+}
+
+@media (max-width: 800px) {
+  .side-decor, .right-posters { display: none; }
+  .app-shell { padding: 6px 8px 6px; }
+  .game-screen.screen-active {
+    grid-template-columns: 1fr;
+    grid-template-areas:
+      "top"
+      "cli"
+      "app"
+      "pnl";
+    grid-template-rows: auto 150px minmax(0,1fr) 140px;
+  }
+  .client-card {
+    flex-direction: row;
+    padding: 28px 12px 10px;
+    gap: 12px;
+  }
+  .client-face { width: 110px; height: 130px; flex-shrink: 0; }
+  .client-copy { text-align: left; }
+  .top-panel { grid-template-columns: repeat(3, 1fr); }
+}
+
+/* Минимальные правки по замечаниям: не меняем общую композицию v3. */
+body::after {
+  background:
+    radial-gradient(ellipse 110% 90% at 50% 50%,
+      transparent 42%,
+      rgba(0,0,0,0.18) 68%,
+      rgba(0,0,0,0.62) 100%);
+  box-shadow:
+    inset 0 0 150px rgba(0,0,0,0.68),
+    inset 0 0 34px rgba(0,0,0,0.52);
+}
+
+.intro-screen.screen-active {
+  padding: 20px 0;
+}
+.intro-screen .bureau-scene { height: 230px; margin-bottom: 22px; }
+.intro-screen h1 { font-size: 3rem; margin: 0 0 10px; }
+.intro-copy { margin: 0 auto 20px; font-size: 0.98rem; }
+.author-card { margin-bottom: 26px; gap: 12px; }
+.author-card > div { padding: 14px 16px; font-size: 0.88rem; }
+.intro-screen .primary-button { padding: 16px 44px; font-size: 1.1rem; margin-top: 20px; }
+.intro-screen .bank-mark { margin-bottom: 8px; font-size: 0.8rem; }
+
+.client-card {
+  gap: 8px;
+  padding-top: 48px;
+}
+
+.client-card::after {
+  top: 8px;
+  left: 14px;
+  transform: none;
+  max-width: calc(100% - 116px);
+  white-space: normal;
+  text-align: center;
+  line-height: 1.15;
+}
+
+.client-copy {
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+.client-copy #clientNamePlate,
+.client-copy strong {
+  font-size: 0.98rem;
+  line-height: 1.14;
+}
+
+.client-copy p {
+  flex: 1 1 auto;
+  min-height: 0;
+  max-height: 240px;
+  padding: 7px 10px 7px 26px;
+  font-size: 0.82rem;
+  line-height: 1.34;
+}
+
+.application-card {
+  flex: 0 0 64%;
+  min-height: 0;
+}
+
+.application-card.document-sealed {
+  justify-content: center;
+  align-items: center;
+  min-height: 220px;
+  overflow: hidden;
+}
+
+.application-card.document-sealed > * {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.application-card.document-sealed::before {
+  content: "ЗАЯВКА В КОНВЕРТЕ";
+  position: absolute;
+  inset: 42px 42px 42px 66px;
+  width: auto;
+  display: grid;
+  place-items: center;
+  border: 3px solid var(--paper-edge);
+  background:
+    linear-gradient(150deg, transparent 49%, rgba(138,123,78,0.45) 50%, transparent 51%),
+    linear-gradient(30deg, transparent 49%, rgba(138,123,78,0.45) 50%, transparent 51%),
+    linear-gradient(180deg, #efe5c8, #d8cca7);
+  color: var(--red-blood);
+  font-family: 'Unica One', sans-serif;
+  font-size: 1.25rem;
+  letter-spacing: 0.2em;
+  text-align: center;
+  opacity: 1;
+  transform: rotate(-1deg);
+}
+
+.application-card.document-revealed {
+  animation: reveal-document 0.65s cubic-bezier(0.25, 1.35, 0.3, 1) both;
+}
+
+@keyframes reveal-document {
+  0% { transform: translateY(10px) scale(0.97) rotate(-1deg); filter: brightness(0.82); }
+  60% { transform: translateY(-3px) scale(1.01) rotate(0.4deg); filter: brightness(1.08); }
+  100% { transform: translateY(0) scale(1) rotate(0); filter: brightness(1); }
+}
+
+.document-stack {
+  padding: 6px 10px;
+  gap: 5px;
+}
+
+.doc-viewer {
+  font-size: 0.8rem;
+  line-height: 1.34;
+}
+
+.doc-viewer h3,
+.doc-viewer h4 {
+  margin: 3px 0 1px;
+}
+
+.doc-viewer dl {
+  gap: 0 8px;
+  margin: 2px 0;
+}
+
+.doc-viewer dd {
+  padding-bottom: 0;
+}
+
+.note-box {
+  padding: 8px 10px;
+  border-width: 2px;
+  border-left: 6px solid var(--ochre);
+  background: #f4e7bd;
+  box-shadow: inset 0 0 0 1px rgba(176,138,44,0.22);
+  font-size: 0.82rem;
+}
+
+.note-box span {
+  font-size: 0.72rem;
+}
+
+.passport-doc {
+  display: grid;
+  grid-template-columns: 92px minmax(0, 1fr);
+  gap: 8px;
+  align-items: start;
+}
+
+.passport-photo {
+  min-height: 104px;
+  display: grid;
+  place-items: center;
+  border: 2px solid var(--paper-edge);
+  background:
+    linear-gradient(180deg, rgba(255,255,255,0.28), transparent),
+    #d4c6a1;
+  box-shadow: inset 0 0 0 2px rgba(0,0,0,0.06);
+}
+
+.passport-head {
+  position: relative;
+  width: 54px;
+  height: 76px;
+  border: 2px solid var(--ink);
+  background: var(--passport-coat, #314a4b);
+  clip-path: polygon(12% 100%, 12% 62%, 22% 62%, 22% 36%, 32% 36%, 32% 20%, 68% 20%, 68% 36%, 78% 36%, 78% 62%, 88% 62%, 88% 100%);
+}
+
+.passport-head::before {
+  content: "";
+  position: absolute;
+  left: 13px;
+  top: 17px;
+  width: 28px;
+  height: 30px;
+  background:
+    linear-gradient(var(--passport-eye, #172222), var(--passport-eye, #172222)) 7px 13px / 5px 4px no-repeat,
+    linear-gradient(var(--passport-eye, #172222), var(--passport-eye, #172222)) 19px 13px / 5px 4px no-repeat,
+    linear-gradient(var(--passport-mouth, #172222), var(--passport-mouth, #172222)) 10px 25px / 11px 3px no-repeat,
+    var(--passport-skin, #b9c6aa);
+  clip-path: polygon(20% 0, 80% 0, 100% 34%, 86% 100%, 16% 100%, 0 34%);
+}
+
+.passport-head::after {
+  content: "";
+  position: absolute;
+  left: 8px;
+  top: 10px;
+  width: 38px;
+  height: 12px;
+  background: var(--passport-hair, #26352f);
+}
+
+.passport-photo.mismatch {
+  background:
+    repeating-linear-gradient(-45deg, rgba(161,26,26,0.16) 0 6px, transparent 6px 12px),
+    #d4c6a1;
+}
+
+.passport-photo.mismatch .passport-head {
+  transform: scaleX(0.86);
+  filter: hue-rotate(35deg) saturate(0.75);
+}
+
+.passport-fields {
+  min-width: 0;
+}
+
+.inspection-console {
+  gap: 6px;
+}
+
+.inspect-button {
+  padding: 7px 12px;
+}
+
+.inspection-result {
+  min-height: 30px;
+  padding: 4px 8px;
+}
+
+.stamp-row {
+  margin-top: -2px;
+}
+
+.bottom-panel .panel-section:last-child,
+.bottom-panel .panel-section:has(.decision-log) {
+  flex: 1 1 auto;
+}
+
+.decision-log {
+  font-size: 0.82rem;
+  padding: 5px 7px;
+}
+
+.decision-log li {
+  line-height: 1.2;
+}
+
+.decision-log li.bad,
+.decision-log li.wrong {
+  border-left-color: var(--red-stamp);
+  color: #ffb8a0;
+  background: rgba(122,15,15,0.28);
+  text-shadow: 0 0 4px rgba(255,100,60,0.45);
+}
+
+.client-token {
+  top: 8px;
+  right: 8px;
+  max-width: 86px;
+  line-height: 1.05;
+}
+
+.decision-feedback {
+  position: relative;
+  overflow: visible;
+}
+
+.decision-feedback::after {
+  content: "";
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  width: 0;
+  height: 0;
+  transform: translateY(-50%) scale(0);
+  opacity: 0;
+  pointer-events: none;
+}
+
+.decision-feedback.positive::after,
+.decision-feedback.negative::after {
+  width: 84px;
+  height: 84px;
+  display: grid;
+  place-items: center;
+  border: 3px solid currentColor;
+  border-radius: 50%;
+  background: var(--coal-900);
+  font-family: 'Unica One', sans-serif;
+  font-size: 2.8rem;
+  line-height: 1;
+  animation: decision-pop 1.8s cubic-bezier(0.3, 1.7, 0.35, 1) both;
+}
+
+.decision-feedback.positive::after {
+  content: "✓";
+  color: var(--phos-bright);
+  box-shadow: 0 0 18px rgba(124,255,124,0.45);
+}
+
+.decision-feedback.negative::after {
+  content: "×";
+  color: #ffb8a0;
+  box-shadow: 0 0 18px rgba(161,26,26,0.55);
+}
+
+@keyframes decision-pop {
+  0% { transform: translateY(-50%) scale(0.2) rotate(-18deg); opacity: 0; }
+  18% { transform: translateY(-50%) scale(1.18) rotate(5deg); opacity: 1; }
+  34% { transform: translateY(-50%) scale(0.94) rotate(-3deg); opacity: 1; }
+  44%, 82% { transform: translateY(-50%) scale(1) rotate(0); opacity: 1; }
+  100% { transform: translateY(-50%) scale(0.86) rotate(0); opacity: 0; }
+}
+
+@media (max-height: 860px) {
+  .client-card { padding-top: 42px; }
+  .client-copy p { max-height: 200px; }
+  .application-card { flex-basis: 58%; }
+}
+
+@media (max-height: 720px) {
+  .client-card { padding-top: 38px; }
+  .client-copy p { max-height: 160px; }
+  .application-card { flex-basis: 52%; }
+}
+
+  </style>
+</head>
+<body>
+  <div class="side-decor side-decor-left" aria-hidden="true">
+    <div class="ceiling-cable"></div>
+    <div class="wall-lamp"></div>
+    <div class="wall-sign">КРЕДИТЫ<br>ТОЛЬКО<br>ПО СПРАВКАМ</div>
+    <div class="poster poster-small poster-joke-one">НЕ СТУЧАТЬ<br>ПО СТЕКЛУ<br>БАНК ДУМАЕТ</div>
+    <div class="file-cabinet">
+      <span></span><span></span><span></span>
+    </div>
+    <div class="pipe"></div>
+    <div class="radiator"></div>
+    <div class="poster">НЕ ВЕРЬ<br>ИДЕАЛЬНЫМ<br>АНКЕТАМ</div>
+    <div class="poster poster-small poster-joke-two">КЛИЕНТ<br>ВСЕГДА ПРАВ<br>ПОКА НЕ БКИ</div>
+  </div>
+  <div class="right-posters" aria-hidden="true">
+    <div class="poster-side">НЕ КОРМИТЬ<br>СКОРИНГ<br>ПОСЛЕ 18:00</div>
+    <div class="poster-side poster-side-red">СБ БЕЖИТ<br>БЫСТРЕЕ<br>ОДОБРЕНИЯ</div>
+  </div>
+
+  <main class="app-shell">
+    <section id="startScreen" class="screen screen-active intro-screen">
+      <div class="bureau-scene">
+        <div class="queue-window">
+          <div class="city-line"></div>
+          <div class="queue-figures"></div>
+          <div class="glass-line"></div>
+        </div>
+        <div class="counter">
+          <div class="applicant-portrait portrait-neutral">
+            <span></span>
+          </div>
+          <div class="speaker-bubble">Мне только небольшой кредит. Все справки тут.</div>
+        </div>
+      </div>
+
+      <div class="bank-mark">ФККБ // КРЕДИТНЫЙ КОНТРОЛЬ</div>
+      <h1>Одобри кредит</h1>
+      <p class="intro-copy">
+        Вы аналитик районного кредитного бюро. Проверяйте анкеты, ловите сомнительные дела
+        и держите баланс смены выше нуля.
+      </p>
+      <div class="author-card">
+        <div>
+          <span>Автор</span>
+          <strong>Борискин Вячеслав</strong>
+        </div>
+        <div>
+          <span>Департамент</span>
+          <strong>КИБ</strong>
+        </div>
+        <div>
+          <span>Кластер</span>
+          <strong>Онлайн финансирование</strong>
+        </div>
+      </div>
+      <button id="startButton" class="primary-button">Начать смену</button>
+    </section>
+
+    <section id="gameScreen" class="screen game-screen" aria-live="polite">
+      <header class="top-panel">
+        <div class="status-box">
+          <span class="status-label">Баланс смены</span>
+          <strong id="balanceValue">0 ₽</strong>
+        </div>
+        <div class="status-box">
+          <span class="status-label">Дел обработано</span>
+          <strong id="processedValue">0</strong>
+        </div>
+        <div class="status-box">
+          <span class="status-label">Верных решений</span>
+          <strong id="correctValue">0</strong>
+        </div>
+        <div class="status-box warning">
+          <span class="status-label">До конца смены</span>
+          <strong id="timerValue">180</strong>
+        </div>
+        <div class="status-box">
+          <span class="status-label">Мошенников поймано</span>
+          <strong id="fraudCaughtValue">0</strong>
+        </div>
+        <div class="status-box">
+          <span class="status-label">Серия</span>
+          <strong id="streakValue">0</strong>
+          <p id="comboText" class="top-note">3 верных = премия</p>
+        </div>
+      </header>
+
+      <section class="client-card">
+        <div id="clientFace" class="client-face portrait-neutral">
+          <div class="hat"></div>
+          <div class="hair"></div>
+          <div class="face">
+            <span class="eye eye-left"></span>
+            <span class="eye eye-right"></span>
+            <span class="nose"></span>
+            <span class="mouth"></span>
+            <span class="glasses"></span>
+          </div>
+          <div class="collar"></div>
+        </div>
+        <div class="client-copy">
+          <span class="status-label">Клиент у окна</span>
+          <strong id="clientNamePlate">ФИО заявителя</strong>
+          <p id="clientRequestText">Просит кредит и старается выглядеть платежеспособно.</p>
+        </div>
+        <div id="securityScene" class="security-scene" aria-hidden="true">
+          <span class="guard guard-left"></span>
+          <span class="guard guard-right"></span>
+          <strong>СБ</strong>
+        </div>
+        <div class="client-token">ОЧЕРЕДЬ №<span id="queueNumber">00</span></div>
+      </section>
+
+      <div class="desk-grid">
+        <section class="application-area">
+          <div class="document-header">
+            <div>
+              <span class="document-kicker">Входящая заявка</span>
+              <h2 id="applicationName">ФИО заявителя</h2>
+            </div>
+            <div id="caseNumber" class="case-number">ДЕЛО 000</div>
+          </div>
+
+          <article id="applicationCard" class="application-card">
+            <div class="paper-title">
+              <span>Федеральное Кредитное Бюро</span>
+              <strong>ЗАЯВКА НА КРЕДИТ</strong>
+            </div>
+
+            <div class="document-tabs" role="tablist" aria-label="Проверочные документы">
+              <button class="doc-tab active" data-doc="application">Анкета</button>
+              <button class="doc-tab" data-doc="passport">Паспорт</button>
+              <button class="doc-tab" data-doc="income">Справка</button>
+              <button class="doc-tab" data-doc="credit">БКИ</button>
+            </div>
+
+            <div class="document-stack">
+              <div id="docViewer" class="doc-viewer"></div>
+
+              <div class="note-box">
+                <span>Служебная заметка</span>
+                <p id="fieldComment">-</p>
+              </div>
+            </div>
+
+            <div class="inspection-console">
+              <button id="inspectButton" class="inspect-button">Проверить документы</button>
+              <div id="inspectionResult" class="inspection-result">Сверьте паспорт, справку о доходах и БКИ перед штампом.</div>
+            </div>
+
+            <div id="stampOverlay" class="stamp-overlay"></div>
+          </article>
+
+          <div id="decisionFeedback" class="decision-feedback">
+            Ожидается решение аналитика.
+          </div>
+
+          <div class="stamp-row">
+            <button id="rejectButton" class="decision-button reject-button">
+              <span class="stamp-knob"></span>
+              <span class="keycap">←</span>
+              ОТКАЗ
+            </button>
+            <button id="fraudButton" class="decision-button fraud-button">
+              <span class="stamp-knob"></span>
+              ВЫЗВАТЬ СБ
+              <span class="keycap">↓</span>
+            </button>
+            <button id="approveButton" class="decision-button approve-button">
+              <span class="stamp-knob"></span>
+              ОДОБРИТЬ
+              <span class="keycap">→</span>
+            </button>
+          </div>
+        </section>
+
+        <section class="bottom-panel">
+          <div class="panel-section rulebook">
+            <span class="status-label">Правила смены</span>
+            <ul>
+              <li>Кредит свыше 1 000 000 ₽ проверять обязательно.</li>
+              <li>Рейтинг ниже 600 требует особого внимания.</li>
+              <li>Идеальная анкета без долга не всегда подарок.</li>
+              <li>Мошенника ловит отдельная кнопка «Вызвать СБ».</li>
+            </ul>
+          </div>
+
+          <div class="panel-section flags-panel">
+            <span class="status-label">Отметки инспектора</span>
+            <button class="flag-button" data-flag="passport">Паспорт не сходится</button>
+            <button class="flag-button" data-flag="income">Доход пахнет принтером</button>
+            <button class="flag-button" data-flag="credit">БКИ кричит</button>
+          </div>
+
+          <div class="panel-section suspicion-meter">
+            <span class="status-label">Сводка</span>
+            <strong>180 сек.</strong>
+            <div class="meter-track">
+              <div id="fraudMeterFill" class="meter-fill"></div>
+            </div>
+          </div>
+
+          <div class="panel-section">
+            <span class="status-label">Последние решения</span>
+            <ul id="decisionLog" class="decision-log"></ul>
+          </div>
+        </section>
+      </div>
+    </section>
+
+    <section id="finalScreen" class="screen final-screen">
+      <div class="bank-mark">СМЕНА ЗАКРЫТА</div>
+      <h1>Смена завершена</h1>
+      <div class="results-grid">
+        <div class="result-card">
+          <span>Итоговый баланс</span>
+          <strong id="finalBalance">0 ₽</strong>
+        </div>
+        <div class="result-card">
+          <span>Заявок обработано</span>
+          <strong id="finalProcessed">0</strong>
+        </div>
+        <div class="result-card">
+          <span>Верных решений</span>
+          <strong id="finalCorrect">0</strong>
+        </div>
+        <div class="result-card">
+          <span>Точность</span>
+          <strong id="finalAccuracy">0%</strong>
+        </div>
+        <div class="result-card">
+          <span>Хороших одобрено</span>
+          <strong id="finalGoodApprovals">0</strong>
+        </div>
+        <div class="result-card">
+          <span>Плохих одобрено</span>
+          <strong id="finalBadApprovals">0</strong>
+        </div>
+        <div class="result-card">
+          <span>Мошенников поймано</span>
+          <strong id="finalFraudCaught">0</strong>
+        </div>
+        <div class="result-card">
+          <span>Ошибочных отказов</span>
+          <strong id="finalMistakenRejections">0</strong>
+        </div>
+      </div>
+      <button id="playAgainButton" class="primary-button">Играть снова</button>
+    </section>
+  </main>
+  <script>
+const SHIFT_SECONDS = 180;
+const RESULT_DELAY_MS = 850;
+const SECURITY_RESULT_DELAY_MS = 3000;
+
+const applications = [
+  {
+    name: "Анна Морозова",
+    age: 34,
+    income: 145000,
+    employment: "Врач, городская больница",
+    creditScore: 742,
+    existingDebt: 320000,
+    loanAmount: 520000,
+    purpose: "Ремонт квартиры",
+    region: "Москва",
+    yearsAtJob: 6,
+    missedPayments: 0,
+    fraudHint: "Справка 2-НДФЛ подтверждена работодателем.",
+    comment: "Стабильный доход, умеренная долговая нагрузка, понятная цель.",
+    phrase: "Смета ремонта приложена. Платежи по графику выдержу.",
+    riskCategory: "good"
+  },
+  {
+    name: "Илья Сафонов",
+    age: 27,
+    income: 78000,
+    employment: "Курьер, самозанятый",
+    creditScore: 618,
+    existingDebt: 210000,
+    loanAmount: 680000,
+    purpose: "Покупка автомобиля",
+    region: "Новосибирская область",
+    yearsAtJob: 1,
+    missedPayments: 1,
+    fraudHint: "Поступления заметно скачут от месяца к месяцу.",
+    comment: "Сумма кредита велика относительно подтвержденного дохода.",
+    phrase: "Машина нужна для работы. Заказы скоро вырастут.",
+    riskCategory: "borderline"
+  },
+  {
+    name: "Мария Белова",
+    age: 45,
+    income: 210000,
+    employment: "Инженер, крупный завод",
+    creditScore: 781,
+    existingDebt: 480000,
+    loanAmount: 750000,
+    purpose: "Рефинансирование",
+    region: "Свердловская область",
+    yearsAtJob: 9,
+    missedPayments: 0,
+    fraudHint: "Налоговые данные совпадают с анкетой.",
+    comment: "Высокий доход и длинный стаж компенсируют размер запроса.",
+    phrase: "Хочу собрать кредиты в один платеж.",
+    riskCategory: "good"
+  },
+  {
+    name: "Павел Кузнецов",
+    age: 52,
+    income: 52000,
+    employment: "Охранник, сменный график",
+    creditScore: 512,
+    existingDebt: 820000,
+    loanAmount: 900000,
+    purpose: "Личные нужды",
+    region: "Тульская область",
+    yearsAtJob: 0.8,
+    missedPayments: 5,
+    fraudHint: "За год указано три адреса проживания.",
+    comment: "Просрочки и долговая нагрузка выше допустимого уровня.",
+    phrase: "На этот раз точно закрою все вовремя.",
+    riskCategory: "bad"
+  },
+  {
+    name: "Роман Гранин",
+    age: 39,
+    income: 260000,
+    employment: "Директор по импорту",
+    creditScore: 819,
+    existingDebt: 0,
+    loanAmount: 1800000,
+    purpose: "Развитие бизнеса",
+    region: "Калининградская область",
+    yearsAtJob: 12,
+    missedPayments: 0,
+    fraudHint: "Все файлы созданы в одну минуту на одном устройстве.",
+    comment: "Анкета выглядит слишком гладкой, история компании короткая.",
+    phrase: "Данные идеальные, проверять тут особо нечего.",
+    riskCategory: "fraud"
+  },
+  {
+    name: "Елена Сорокина",
+    age: 31,
+    income: 116000,
+    employment: "Учитель, гимназия",
+    creditScore: 704,
+    existingDebt: 180000,
+    loanAmount: 340000,
+    purpose: "Обучение",
+    region: "Санкт-Петербург",
+    yearsAtJob: 4,
+    missedPayments: 0,
+    fraudHint: "Кадровый отдел подтвердил занятость.",
+    comment: "Умеренная сумма и чистая платежная история.",
+    phrase: "Оплата курса, договор на руках.",
+    riskCategory: "good"
+  },
+  {
+    name: "Денис Агеев",
+    age: 24,
+    income: 95000,
+    employment: "Дизайнер, ИП",
+    creditScore: 653,
+    existingDebt: 165000,
+    loanAmount: 560000,
+    purpose: "Оборудование",
+    region: "Пермский край",
+    yearsAtJob: 2,
+    missedPayments: 0,
+    fraudHint: "Заказы реальные, но выручка сезонная.",
+    comment: "Цель понятная, однако доход нестабилен.",
+    phrase: "Новый планшет сразу окупится заказами.",
+    riskCategory: "borderline"
+  },
+  {
+    name: "Ольга Ким",
+    age: 42,
+    income: 300000,
+    employment: "Финансовый директор",
+    creditScore: 489,
+    existingDebt: 2200000,
+    loanAmount: 1250000,
+    purpose: "Рефинансирование",
+    region: "Москва",
+    yearsAtJob: 10,
+    missedPayments: 7,
+    fraudHint: "Доход подтвержден, кредитная история тяжелая.",
+    comment: "Высокий доход противоречит очень плохой дисциплине платежей.",
+    phrase: "Доход большой, банк ничем не рискует.",
+    riskCategory: "bad"
+  },
+  {
+    name: "Сергей Нестеров",
+    age: 37,
+    income: 168000,
+    employment: "Логист, федеральная сеть",
+    creditScore: 733,
+    existingDebt: 410000,
+    loanAmount: 630000,
+    purpose: "Медицинские расходы",
+    region: "Самарская область",
+    yearsAtJob: 5,
+    missedPayments: 0,
+    fraudHint: "Счет клиники и полис совпадают.",
+    comment: "Надежное дело с подтвержденной целью.",
+    phrase: "Счет из клиники в документах.",
+    riskCategory: "good"
+  },
+  {
+    name: "Ксения Орлова",
+    age: 29,
+    income: 72000,
+    employment: "Временный офисный сотрудник",
+    creditScore: 586,
+    existingDebt: 430000,
+    loanAmount: 800000,
+    purpose: "Свадьба",
+    region: "Краснодарский край",
+    yearsAtJob: 0.4,
+    missedPayments: 3,
+    fraudHint: "Личность подтверждена, платежеспособность слабая.",
+    comment: "Короткий стаж, высокий долг и необязательная цель.",
+    phrase: "Это важное событие. Потом разберемся.",
+    riskCategory: "bad"
+  },
+  {
+    name: "Лев Фомин",
+    age: 33,
+    income: 180000,
+    employment: "IT-консультант",
+    creditScore: 790,
+    existingDebt: 50000,
+    loanAmount: 2100000,
+    purpose: "Инвестиционная возможность",
+    region: "Сочи",
+    yearsAtJob: 7,
+    missedPayments: 0,
+    fraudHint: "Телефон привязан к виртуальному офису.",
+    comment: "Чистая анкета, расплывчатая цель и сильная срочность.",
+    phrase: "Нужно сегодня. Завтра цена будет другой.",
+    riskCategory: "fraud"
+  },
+  {
+    name: "Наталья Егорова",
+    age: 56,
+    income: 150000,
+    employment: "Инженер-строитель",
+    creditScore: 721,
+    existingDebt: 530000,
+    loanAmount: 690000,
+    purpose: "Покупка автомобиля",
+    region: "Татарстан",
+    yearsAtJob: 14,
+    missedPayments: 0,
+    fraudHint: "Автосалон подтвердил счет.",
+    comment: "Длинный стаж и разумный ежемесячный платеж.",
+    phrase: "Старую машину уже продала, часть суммы внесу.",
+    riskCategory: "good"
+  },
+  {
+    name: "Виктор Платонов",
+    age: 48,
+    income: 105000,
+    employment: "Подрядчик, ремонтные работы",
+    creditScore: 626,
+    existingDebt: 340000,
+    loanAmount: 420000,
+    purpose: "Инструменты и материалы",
+    region: "Воронежская область",
+    yearsAtJob: 3,
+    missedPayments: 2,
+    fraudHint: "Выписки показывают нерегулярные, но повторяющиеся поступления.",
+    comment: "Деловая цель нормальная, история платежей смешанная.",
+    phrase: "Сезон начался, деньги пойдут быстро.",
+    riskCategory: "borderline"
+  },
+  {
+    name: "Алиса Новикова",
+    age: 23,
+    income: 61000,
+    employment: "Стажер, рекламное агентство",
+    creditScore: 548,
+    existingDebt: 280000,
+    loanAmount: 610000,
+    purpose: "Путешествие",
+    region: "Нижегородская область",
+    yearsAtJob: 0.2,
+    missedPayments: 4,
+    fraudHint: "Документы подлинные, кредитная сила низкая.",
+    comment: "Слабый доход, короткий стаж и необязательная цель.",
+    phrase: "Путевка горит, зарплата скоро повысится.",
+    riskCategory: "bad"
+  },
+  {
+    name: "Михаил Харитонов",
+    age: 40,
+    income: 220000,
+    employment: "Продуктовый менеджер",
+    creditScore: 768,
+    existingDebt: 260000,
+    loanAmount: 920000,
+    purpose: "Ремонт дома",
+    region: "Ленинградская область",
+    yearsAtJob: 8,
+    missedPayments: 0,
+    fraudHint: "Работодатель и Росреестр сходятся.",
+    comment: "Сильная платежеспособность и понятная бытовая цель.",
+    phrase: "Проект согласован, подрядчик проверен.",
+    riskCategory: "good"
+  },
+  {
+    name: "Вера Ланская",
+    age: 36,
+    income: 280000,
+    employment: "Частная клиника, специалист",
+    creditScore: 804,
+    existingDebt: 15000,
+    loanAmount: 1650000,
+    purpose: "Резерв на личные нужды",
+    region: "Московская область",
+    yearsAtJob: 11,
+    missedPayments: 0,
+    fraudHint: "Метаданные паспорта содержат другое имя файла.",
+    comment: "Цифры отличные, но документы личности не полностью сходятся.",
+    phrase: "Не люблю объяснять личные траты.",
+    riskCategory: "fraud"
+  },
+  {
+    name: "Артур Карпов",
+    age: 44,
+    income: 120000,
+    employment: "Начальник склада",
+    creditScore: 665,
+    existingDebt: 760000,
+    loanAmount: 480000,
+    purpose: "Рефинансирование",
+    region: "Ростовская область",
+    yearsAtJob: 5,
+    missedPayments: 1,
+    fraudHint: "Зарплатные поступления регулярные.",
+    comment: "Долг высокий, но объединение платежей может снизить нагрузку.",
+    phrase: "Хочу перестать платить в четыре банка.",
+    riskCategory: "borderline"
+  },
+  {
+    name: "Ирина Романенко",
+    age: 30,
+    income: 134000,
+    employment: "Медсестра, частная клиника",
+    creditScore: 716,
+    existingDebt: 210000,
+    loanAmount: 390000,
+    purpose: "Переезд семьи",
+    region: "Калужская область",
+    yearsAtJob: 4,
+    missedPayments: 0,
+    fraudHint: "Договор аренды и справка о доходах сходятся.",
+    comment: "Чистая история, практичная цель, стабильная занятость.",
+    phrase: "Переезд уже согласован с работодателем.",
+    riskCategory: "good"
+  },
+  {
+    name: "Георгий Селиванов",
+    age: 58,
+    income: 76000,
+    employment: "Сезонная работа, гостиница",
+    creditScore: 537,
+    existingDebt: 520000,
+    loanAmount: 730000,
+    purpose: "Открытие кафе",
+    region: "Крым",
+    yearsAtJob: 1,
+    missedPayments: 6,
+    fraudHint: "Подделки не найдено, но платежная история слабая.",
+    comment: "Крупный рискованный кредит при низком рейтинге.",
+    phrase: "Курортный сезон все покроет.",
+    riskCategory: "bad"
+  },
+  {
+    name: "Полина Стрельцова",
+    age: 27,
+    income: 190000,
+    employment: "Аналитик данных",
+    creditScore: 801,
+    existingDebt: 0,
+    loanAmount: 1750000,
+    purpose: "Покупка редкого актива",
+    region: "Тюменская область",
+    yearsAtJob: 0.5,
+    missedPayments: 0,
+    fraudHint: "Домен работодателя зарегистрирован две недели назад.",
+    comment: "Идеальная история сочетается с очень свежим трудовым следом.",
+    phrase: "Работа новая, но компания серьезная. Очень.",
+    riskCategory: "fraud"
+  },
+  {
+    name: "Зоя Мартынова",
+    age: 35,
+    income: 98000,
+    employment: "Управляющая рестораном",
+    creditScore: 688,
+    existingDebt: 190000,
+    loanAmount: 520000,
+    purpose: "Подержанный автомобиль",
+    region: "Ставропольский край",
+    yearsAtJob: 3,
+    missedPayments: 0,
+    fraudHint: "Счет дилера выглядит штатно.",
+    comment: "Средний доход и рейтинг, сумма немного выше комфортной.",
+    phrase: "Машина нужна для семьи и работы.",
+    riskCategory: "borderline"
+  },
+  {
+    name: "Семен Гусев",
+    age: 49,
+    income: 155000,
+    employment: "Техник связи",
+    creditScore: 736,
+    existingDebt: 240000,
+    loanAmount: 510000,
+    purpose: "Солнечные панели",
+    region: "Красноярский край",
+    yearsAtJob: 13,
+    missedPayments: 0,
+    fraudHint: "Коммунальный счет подтверждает собственность.",
+    comment: "Низкий риск, стабильный стаж и документированная цель.",
+    phrase: "Расчет окупаемости приложил.",
+    riskCategory: "good"
+  },
+  {
+    name: "Лилия Захарова",
+    age: 26,
+    income: 74000,
+    employment: "Копирайтер, фриланс",
+    creditScore: 602,
+    existingDebt: 210000,
+    loanAmount: 240000,
+    purpose: "Ноутбук и ПО",
+    region: "Удмуртия",
+    yearsAtJob: 2,
+    missedPayments: 1,
+    fraudHint: "Выписки с биржи фриланса приложены.",
+    comment: "Сумма небольшая, но стабильность дохода спорная.",
+    phrase: "Без ноутбука не будет заказов.",
+    riskCategory: "borderline"
+  },
+  {
+    name: "Владимир Дейнеко",
+    age: 41,
+    income: 250000,
+    employment: "Операционный директор",
+    creditScore: 828,
+    existingDebt: 30000,
+    loanAmount: 1500000,
+    purpose: "Покупка коллекционного авто",
+    region: "Санкт-Петербург",
+    yearsAtJob: 15,
+    missedPayments: 0,
+    fraudHint: "Номер справки встречается в двух чужих заявках.",
+    comment: "На первый взгляд отлично, но повтор справки тревожит.",
+    phrase: "Справка стандартная, у всех такие номера.",
+    riskCategory: "fraud"
+  },
+  {
+    name: "Кирилл Волков",
+    age: 32,
+    income: 50000,
+    employment: "Водитель, агрегатор",
+    creditScore: 498,
+    existingDebt: 360000,
+    loanAmount: 430000,
+    purpose: "Закрытие долгов по аренде",
+    region: "Омская область",
+    yearsAtJob: 0.6,
+    missedPayments: 8,
+    fraudHint: "Личность подтверждена.",
+    comment: "Срочная цель, но вероятность возврата низкая.",
+    phrase: "Если откажете, мне совсем конец.",
+    riskCategory: "bad"
+  },
+  {
+    name: "Тамара Федорова",
+    age: 53,
+    income: 170000,
+    employment: "Преподаватель университета",
+    creditScore: 755,
+    existingDebt: 390000,
+    loanAmount: 720000,
+    purpose: "Ремонт дома",
+    region: "Владимирская область",
+    yearsAtJob: 18,
+    missedPayments: 0,
+    fraudHint: "Университет подтвердил занятость.",
+    comment: "Долгий стаж и предсказуемая платежеспособность.",
+    phrase: "Дом старый, но документы на руках.",
+    riskCategory: "good"
+  },
+  {
+    name: "Олег Баженов",
+    age: 38,
+    income: 128000,
+    employment: "Новая работа, продажи",
+    creditScore: 694,
+    existingDebt: 620000,
+    loanAmount: 980000,
+    purpose: "Рефинансирование",
+    region: "Челябинская область",
+    yearsAtJob: 0.3,
+    missedPayments: 0,
+    fraudHint: "Оффер подтвержден, испытательный срок не завершен.",
+    comment: "Поведение хорошее, но стаж слишком короткий для такой суммы.",
+    phrase: "Испытательный срок формальность.",
+    riskCategory: "borderline"
+  },
+  {
+    name: "Светлана Блейк",
+    age: 46,
+    income: 88000,
+    employment: "Оператор колл-центра",
+    creditScore: 577,
+    existingDebt: 850000,
+    loanAmount: 580000,
+    purpose: "Потребительский кредит",
+    region: "Иркутская область",
+    yearsAtJob: 2,
+    missedPayments: 4,
+    fraudHint: "История счета настоящая.",
+    comment: "Долг к доходу слишком высок, просрочки недавние.",
+    phrase: "Потребуется немного, дальше станет легче.",
+    riskCategory: "bad"
+  },
+  {
+    name: "Дмитрий Пирогов",
+    age: 29,
+    income: 160000,
+    employment: "Специалист по ИБ",
+    creditScore: 773,
+    existingDebt: 160000,
+    loanAmount: 590000,
+    purpose: "Профессиональная сертификация",
+    region: "Московская область",
+    yearsAtJob: 4,
+    missedPayments: 0,
+    fraudHint: "Счет учебного центра действителен.",
+    comment: "Сильный профиль и карьерная цель.",
+    phrase: "Сертификат увеличит доход уже в этом году.",
+    riskCategory: "good"
+  },
+  {
+    name: "Мила Артемьева",
+    age: 34,
+    income: 235000,
+    employment: "Юридический консультант",
+    creditScore: 815,
+    existingDebt: 0,
+    loanAmount: 1300000,
+    purpose: "Медицинская процедура",
+    region: "Казань",
+    yearsAtJob: 9,
+    missedPayments: 0,
+    fraudHint: "Клиника не подтверждает номер счета.",
+    comment: "Профиль безупречен, но указанная услуга не подтверждена.",
+    phrase: "Клиника иногда не отвечает банкам.",
+    riskCategory: "fraud"
+  }
+];
+
+const elements = {
+  startScreen: document.getElementById("startScreen"),
+  gameScreen: document.getElementById("gameScreen"),
+  finalScreen: document.getElementById("finalScreen"),
+  startButton: document.getElementById("startButton"),
+  playAgainButton: document.getElementById("playAgainButton"),
+  approveButton: document.getElementById("approveButton"),
+  rejectButton: document.getElementById("rejectButton"),
+  fraudButton: document.getElementById("fraudButton"),
+  balanceValue: document.getElementById("balanceValue"),
+  processedValue: document.getElementById("processedValue"),
+  correctValue: document.getElementById("correctValue"),
+  timerValue: document.getElementById("timerValue"),
+  fraudCaughtValue: document.getElementById("fraudCaughtValue"),
+  fraudMeterFill: document.getElementById("fraudMeterFill"),
+  streakValue: document.getElementById("streakValue"),
+  comboText: document.getElementById("comboText"),
+  decisionLog: document.getElementById("decisionLog"),
+  decisionFeedback: document.getElementById("decisionFeedback"),
+  applicationName: document.getElementById("applicationName"),
+  caseNumber: document.getElementById("caseNumber"),
+  clientFace: document.getElementById("clientFace"),
+  clientCard: document.querySelector(".client-card"),
+  clientNamePlate: document.getElementById("clientNamePlate"),
+  clientRequestText: document.getElementById("clientRequestText"),
+  securityScene: document.getElementById("securityScene"),
+  queueNumber: document.getElementById("queueNumber"),
+  stampOverlay: document.getElementById("stampOverlay"),
+  applicationCard: document.getElementById("applicationCard"),
+  docViewer: document.getElementById("docViewer"),
+  docTabs: document.querySelectorAll(".doc-tab"),
+  inspectButton: document.getElementById("inspectButton"),
+  inspectionResult: document.getElementById("inspectionResult"),
+  flagButtons: document.querySelectorAll(".flag-button"),
+  fieldComment: document.getElementById("fieldComment"),
+  finalBalance: document.getElementById("finalBalance"),
+  finalProcessed: document.getElementById("finalProcessed"),
+  finalCorrect: document.getElementById("finalCorrect"),
+  finalAccuracy: document.getElementById("finalAccuracy"),
+  finalGoodApprovals: document.getElementById("finalGoodApprovals"),
+  finalBadApprovals: document.getElementById("finalBadApprovals"),
+  finalFraudCaught: document.getElementById("finalFraudCaught"),
+  finalMistakenRejections: document.getElementById("finalMistakenRejections")
+};
+
+let deck = [];
+let currentApplication = null;
+let timerId = null;
+let nextApplicationTimeout = null;
+let typewriterTimeout = null;
+let waitMoodTimeout = null;
+let angerMoodTimeout = null;
+let isLocked = false;
+let activeDocument = "application";
+let inspectionUsed = false;
+let inspectionAvailable = true;
+let activeFlags = new Set();
+let clientShownAt = 0;
+
+let state = getInitialState();
+
+function getInitialState() {
+  return {
+    balance: 0,
+    processed: 0,
+    correct: 0,
+    timeLeft: SHIFT_SECONDS,
+    streak: 0,
+    goodApprovals: 0,
+    badApprovals: 0,
+    fraudCaught: 0,
+    mistakenRejections: 0,
+    log: []
+  };
+}
+
+function startGame() {
+  resetGame();
+  showScreen("game");
+  renderStats();
+  loadNextApplication();
+  timerId = window.setInterval(tickTimer, 1000);
+}
+
+function resetGame() {
+  window.clearInterval(timerId);
+  window.clearTimeout(nextApplicationTimeout);
+  stopTypewriter();
+  clearMoodTimers();
+  clearDecisionAnimations();
+  deck = shuffleApplications();
+  currentApplication = null;
+  isLocked = false;
+  inspectionUsed = false;
+  inspectionAvailable = true;
+  activeDocument = "application";
+  activeFlags = new Set();
+  state = getInitialState();
+  setButtonsDisabled(false);
+  clearStamp();
+  elements.decisionFeedback.className = "decision-feedback";
+  elements.decisionFeedback.textContent = "Ожидается решение аналитика.";
+}
+
+function showScreen(screenName) {
+  elements.startScreen.classList.toggle("screen-active", screenName === "start");
+  elements.gameScreen.classList.toggle("screen-active", screenName === "game");
+  elements.finalScreen.classList.toggle("screen-active", screenName === "final");
+}
+
+function tickTimer() {
+  state.timeLeft -= 1;
+  elements.timerValue.textContent = state.timeLeft;
+
+  if (state.timeLeft <= 0) {
+    showFinalResults();
+  }
+}
+
+function loadNextApplication() {
+  if (state.timeLeft <= 0) {
+    showFinalResults();
+    return;
+  }
+
+  if (deck.length === 0) {
+    deck = shuffleApplications();
+  }
+
+  currentApplication = deck.pop();
+  stopTypewriter();
+  clearMoodTimers();
+  clearDecisionAnimations();
+  isLocked = false;
+  inspectionUsed = false;
+  inspectionAvailable = true;
+  activeDocument = "application";
+  activeFlags = new Set();
+  setButtonsDisabled(false);
+  elements.inspectButton.disabled = false;
+  renderFlagButtons();
+  clearStamp();
+  elements.decisionFeedback.className = "decision-feedback";
+  elements.decisionFeedback.textContent = "Ожидается решение аналитика.";
+  elements.inspectionResult.textContent = "Сверьте паспорт, справку о доходах и БКИ перед штампом.";
+  elements.inspectionResult.className = "inspection-result";
+  renderApplication(currentApplication);
+}
+
+function renderApplication(application) {
+  const caseId = String(state.processed + 1).padStart(3, "0");
+  clientShownAt = 0;
+
+  elements.applicationName.textContent = application.name;
+  elements.caseNumber.textContent = `ДЕЛО ${caseId}`;
+  elements.queueNumber.textContent = caseId;
+  elements.clientNamePlate.textContent = application.name;
+  const clientRequest = getClientRequest(application);
+  elements.clientRequestText.textContent = "";
+  elements.clientFace.className = `client-face portrait-${application.riskCategory}`;
+  applyRandomPortrait(application);
+  elements.applicationCard.classList.add("document-sealed");
+  elements.applicationCard.classList.remove("document-revealed");
+  typeClientSpeech(clientRequest);
+  elements.fieldComment.textContent = getServiceNote(application);
+  renderDocumentTabs();
+  renderDocument(application);
+}
+
+function renderDocumentTabs() {
+  elements.docTabs.forEach((tab) => {
+    tab.classList.toggle("active", tab.dataset.doc === activeDocument);
+  });
+}
+
+function renderDocument(application) {
+  const documents = buildDocuments(application);
+  const rows = documents[activeDocument];
+
+  const rowsHtml = rows.map((row) => `
+    <div class="doc-row ${row.alert ? "doc-alert" : ""}">
+      <span>${row.label}</span>
+      <strong>${row.value}</strong>
+    </div>
+  `).join("");
+
+  if (activeDocument === "passport") {
+    elements.docViewer.innerHTML = `
+      <div class="passport-doc">
+        ${renderPassportPhoto(application)}
+        <div class="passport-fields">${rowsHtml}</div>
+      </div>
+    `;
+    return;
+  }
+
+  elements.docViewer.innerHTML = rowsHtml;
+}
+
+function renderPassportPhoto(application) {
+  const similar = application.riskCategory !== "fraud";
+  const source = getComputedStyle(elements.clientFace);
+  const skin = similar ? source.getPropertyValue("--skin") || "#b9c6aa" : "#c6b28c";
+  const hair = similar ? source.getPropertyValue("--hair") || "#26352f" : "#685044";
+  const coat = similar ? source.getPropertyValue("--coat") || "#314a4b" : "#4d3c59";
+  const eye = similar ? source.getPropertyValue("--eye") || "#172222" : "#2d1d1d";
+  const mouth = similar ? source.getPropertyValue("--mouth") || "#172222" : "#6f1e23";
+
+  return `
+    <div class="passport-photo ${similar ? "similar" : "mismatch"}" aria-label="${similar ? "Фото похоже на клиента" : "Фото не похоже на клиента"}">
+      <div class="passport-head" style="
+        --passport-skin: ${skin};
+        --passport-hair: ${hair};
+        --passport-coat: ${coat};
+        --passport-eye: ${eye};
+        --passport-mouth: ${mouth};
+      "></div>
+    </div>
+  `;
+}
+
+function buildDocuments(application) {
+  const fraud = application.riskCategory === "fraud";
+  const bad = application.riskCategory === "bad";
+  const borderline = application.riskCategory === "borderline";
+  const passportAge = fraud ? application.age + 2 : application.age;
+  const incomeDoc = fraud ? Math.round(application.income * 1.55) : application.income;
+  const employerDoc = fraud ? "ООО «Рога, Копыта и Блокчейн»" : application.employment;
+  const debtDoc = bad ? application.existingDebt + 160000 : application.existingDebt;
+  const scoreNote = application.creditScore > 780 && application.existingDebt === 0
+    ? "Слишком чисто. Даже у бухгалтерии так не бывает."
+    : application.fraudHint;
+
+  return {
+    application: [
+      { label: "ФИО", value: application.name },
+      { label: "Возраст", value: application.age },
+      { label: "Доход", value: formatMoney(application.income) },
+      { label: "Занятость", value: application.employment },
+      { label: "Сумма", value: formatMoney(application.loanAmount) },
+      { label: "Цель", value: application.purpose },
+      { label: "Регион", value: application.region },
+      { label: "Стаж", value: formatYears(application.yearsAtJob) }
+    ],
+    passport: [
+      { label: "ФИО", value: application.name },
+      { label: "Возраст в паспорте", value: passportAge, alert: fraud },
+      { label: "Регион выдачи", value: fraud ? "Не совпадает с заявкой" : application.region, alert: fraud },
+      { label: "Фото", value: fraud ? "Похоже, человек моргал в 1993-м и до сих пор" : "Похоже на заявителя" },
+      { label: "Адрес", value: bad ? "Частые переезды" : "Постоянная регистрация", alert: bad }
+    ],
+    income: [
+      { label: "Работодатель", value: employerDoc, alert: fraud },
+      { label: "Доход в справке", value: formatMoney(incomeDoc), alert: fraud },
+      { label: "Стаж", value: formatYears(application.yearsAtJob), alert: borderline && application.yearsAtJob < 1 },
+      { label: "Печать", value: fraud ? "Чуть пахнет свежим принтером" : "Печать читается" },
+      { label: "Комментарий бухгалтерии", value: fraud ? "«Кого?»" : "Подтверждено" }
+    ],
+    credit: [
+      { label: "Рейтинг", value: application.creditScore, alert: application.creditScore < 600 },
+      { label: "Долг по БКИ", value: formatMoney(debtDoc), alert: bad },
+      { label: "Просрочки", value: application.missedPayments, alert: application.missedPayments > 2 },
+      { label: "Косвенный риск", value: scoreNote, alert: fraud || bad },
+      { label: "Вердикт робота", value: getRobotJoke(application), alert: fraud || bad }
+    ]
+  };
+}
+
+function inspectDocuments() {
+  if (!currentApplication || isLocked || !inspectionAvailable) {
+    return;
+  }
+
+  inspectionUsed = true;
+  inspectionAvailable = false;
+  elements.inspectButton.disabled = true;
+  const category = currentApplication.riskCategory;
+  elements.inspectionResult.textContent = getInspectionMessage(currentApplication);
+  elements.inspectionResult.className = `inspection-result ${category === "good" ? "ok" : "warn"}`;
+  activeDocument = category === "fraud" ? "passport" : category === "bad" ? "credit" : "income";
+  renderDocumentTabs();
+  renderDocument(currentApplication);
+}
+
+function handleDecision(decision) {
+  if (isLocked || !currentApplication || state.timeLeft <= 0) {
+    return;
+  }
+
+  isLocked = true;
+  stopTypewriter();
+  clearMoodTimers();
+  setButtonsDisabled(true);
+
+  const outcome = calculateOutcome(currentApplication, decision);
+  state.balance += outcome.points;
+  state.processed += 1;
+
+  if (outcome.isCorrect) {
+    state.correct += 1;
+    state.streak += 1;
+  } else {
+    state.streak = 0;
+  }
+
+  if (state.streak > 0 && state.streak % 3 === 0) {
+    state.balance += 30;
+    outcome.message += " | Премия за серию: +30";
+  }
+
+  if (inspectionUsed && outcome.isCorrect && currentApplication.riskCategory === "fraud" && decision === "fraud") {
+    state.balance += 25;
+    outcome.message += " | СБ любит доказательства: +25";
+  }
+
+  updateSpecialStats(currentApplication, decision);
+  applyInspectionModifiers(currentApplication, decision, outcome);
+  pushDecisionLog(currentApplication, decision, outcome);
+  renderStats();
+  renderOutcome(outcome, decision);
+
+  const delay = decision === "fraud" ? SECURITY_RESULT_DELAY_MS : RESULT_DELAY_MS;
+  nextApplicationTimeout = window.setTimeout(loadNextApplication, delay);
+}
+
+function calculateOutcome(application, decision) {
+  const category = application.riskCategory;
+
+  if (category === "good") {
+    if (decision === "approve") {
+      return makeOutcome(120, true, "Надежный заемщик: +120");
+    }
+
+    if (decision === "fraud") {
+      return makeOutcome(-140, false, "Ложный вызов СБ: -140. Клиент просто выглядел уставшим.");
+    }
+
+    return makeOutcome(-60, false, "Отказ хорошему клиенту: -60");
+  }
+
+  if (category === "borderline") {
+    if (decision === "fraud") {
+      return makeOutcome(-90, false, "СБ пришла зря: -90. Нюансы не равны наручникам.");
+    }
+
+    if (decision === "approve") {
+      const paidBack = Math.random() >= 0.45;
+      return paidBack
+        ? makeOutcome(80, true, "Спорный клиент выплатил: +80")
+        : makeOutcome(-40, false, "Спорный клиент сорвал график: -40");
+    }
+    return makeOutcome(0, true, "Риск не принят: +0");
+  }
+
+  if (category === "bad") {
+    if (decision === "approve") {
+      return makeOutcome(-150, false, "Дефолт по кредиту: -150");
+    }
+
+    if (decision === "fraud") {
+      return makeOutcome(-70, false, "Это не мошенник, это финансовая катастрофа: -70");
+    }
+
+    return makeOutcome(20, true, "Плохой заемщик отсеян: +20");
+  }
+
+  if (category === "fraud") {
+    if (decision === "approve") {
+      return makeOutcome(-250, false, "Мошенническая потеря: -250");
+    }
+
+    if (decision === "fraud") {
+      return makeOutcome(160, true, "Мошенник задержан СБ: +160");
+    }
+
+    return makeOutcome(10, false, "Мошеннику отказали, но он ушел с папкой схем: +10");
+  }
+
+  return makeOutcome(0, false, "Неизвестный исход: +0");
+}
+
+function makeOutcome(points, isCorrect, message) {
+  return { points, isCorrect, message };
+}
+
+function updateSpecialStats(application, decision) {
+  if (application.riskCategory === "good" && decision === "approve") {
+    state.goodApprovals += 1;
+  }
+
+  if ((application.riskCategory === "bad" || application.riskCategory === "fraud") && decision === "approve") {
+    state.badApprovals += 1;
+  }
+
+  if (application.riskCategory === "fraud" && decision === "fraud") {
+    state.fraudCaught += 1;
+  }
+
+  if (application.riskCategory === "good" && decision === "reject") {
+    state.mistakenRejections += 1;
+  }
+}
+
+function applyInspectionModifiers(application, decision, outcome) {
+  const issues = getDocumentIssues(application);
+  const matchedFlags = [...activeFlags].filter((flag) => issues.includes(flag)).length;
+  const falseFlags = [...activeFlags].filter((flag) => !issues.includes(flag)).length;
+  const needsInspection = application.loanAmount > 1000000 || application.creditScore < 600 || application.riskCategory === "fraud";
+
+  if (needsInspection && !inspectionUsed) {
+    state.balance -= 20;
+    outcome.message += " | Решение вслепую: -20";
+  }
+
+  if (matchedFlags > 0 && outcome.isCorrect) {
+    const bonus = Math.min(matchedFlags * 10, 20);
+    state.balance += bonus;
+    outcome.message += ` | Метка попала: +${bonus}`;
+  }
+
+  if (falseFlags > 0) {
+    const penalty = Math.min(falseFlags * 5, 15);
+    state.balance -= penalty;
+    outcome.message += ` | Лишняя паранойя: -${penalty}`;
+  }
+}
+
+function renderOutcome(outcome, decision) {
+  elements.decisionFeedback.textContent = outcome.message;
+  elements.decisionFeedback.className = `decision-feedback ${outcome.points >= 0 ? "positive" : "negative"}`;
+  elements.stampOverlay.textContent = getStampText(decision);
+  elements.stampOverlay.className = `stamp-overlay show ${decision === "reject" || decision === "fraud" ? "reject" : ""}`;
+  playDecisionAnimation(decision);
+  if (outcome.isCorrect) {
+    flyApplicationToCorrectCounter();
+  }
+}
+
+function clearStamp() {
+  elements.stampOverlay.textContent = "";
+  elements.stampOverlay.className = "stamp-overlay";
+}
+
+function renderStats() {
+  elements.balanceValue.textContent = formatMoney(state.balance);
+  elements.processedValue.textContent = state.processed;
+  elements.correctValue.textContent = state.correct;
+  elements.timerValue.textContent = state.timeLeft;
+  elements.fraudCaughtValue.textContent = state.fraudCaught;
+  elements.fraudMeterFill.style.width = `${Math.min(state.fraudCaught * 18, 100)}%`;
+  elements.streakValue.textContent = state.streak;
+  elements.comboText.textContent = state.streak >= 3
+    ? "Серия активна. Каждое третье верное решение дает +30."
+    : "3 верных решения дают премию.";
+  renderDecisionLog();
+}
+
+function pushDecisionLog(application, decision, outcome) {
+  state.log.unshift({
+    name: application.name,
+    decision,
+    points: outcome.points,
+    isCorrect: outcome.isCorrect
+  });
+  state.log = state.log.slice(0, 5);
+}
+
+function renderDecisionLog() {
+  elements.decisionLog.innerHTML = "";
+
+  if (state.log.length === 0) {
+    const emptyItem = document.createElement("li");
+    emptyItem.textContent = "Решений пока нет.";
+    elements.decisionLog.appendChild(emptyItem);
+    return;
+  }
+
+  state.log.forEach((entry) => {
+    const item = document.createElement("li");
+    item.className = entry.isCorrect ? "good" : "bad";
+    item.textContent = `${translateDecision(entry.decision)} - ${entry.name} (${formatSigned(entry.points)})`;
+    elements.decisionLog.appendChild(item);
+  });
+}
+
+function showFinalResults() {
+  window.clearInterval(timerId);
+  window.clearTimeout(nextApplicationTimeout);
+  stopTypewriter();
+  clearMoodTimers();
+  currentApplication = null;
+  isLocked = true;
+  setButtonsDisabled(true);
+
+  const accuracy = state.processed === 0
+    ? 0
+    : Math.round((state.correct / state.processed) * 100);
+
+  elements.finalBalance.textContent = formatMoney(state.balance);
+  elements.finalProcessed.textContent = state.processed;
+  elements.finalCorrect.textContent = state.correct;
+  elements.finalAccuracy.textContent = `${accuracy}%`;
+  elements.finalGoodApprovals.textContent = state.goodApprovals;
+  elements.finalBadApprovals.textContent = state.badApprovals;
+  elements.finalFraudCaught.textContent = state.fraudCaught;
+  elements.finalMistakenRejections.textContent = state.mistakenRejections;
+
+  showScreen("final");
+}
+
+function setButtonsDisabled(disabled) {
+  elements.approveButton.disabled = disabled;
+  elements.rejectButton.disabled = disabled;
+  elements.fraudButton.disabled = disabled;
+  elements.inspectButton.disabled = disabled || !inspectionAvailable;
+  elements.flagButtons.forEach((button) => {
+    button.disabled = disabled;
+  });
+}
+
+function shuffleApplications() {
+  const copy = [...applications];
+
+  for (let index = copy.length - 1; index > 0; index -= 1) {
+    const randomIndex = Math.floor(Math.random() * (index + 1));
+    [copy[index], copy[randomIndex]] = [copy[randomIndex], copy[index]];
+  }
+
+  return copy;
+}
+
+function formatMoney(value) {
+  const sign = value < 0 ? "-" : "";
+  return `${sign}${Math.abs(value).toLocaleString("ru-RU")} ₽`;
+}
+
+function formatSigned(value) {
+  return value >= 0 ? `+${value}` : String(value);
+}
+
+function formatYears(value) {
+  return `${value} ${value === 1 ? "год" : "г."}`;
+}
+
+function translateDecision(decision) {
+  if (decision === "approve") {
+    return "ОДОБРЕНО";
+  }
+
+  if (decision === "fraud") {
+    return "СБ";
+  }
+
+  return "ОТКАЗ";
+}
+
+function getStampText(decision) {
+  if (decision === "approve") {
+    return "ОДОБРЕНО";
+  }
+
+  if (decision === "fraud") {
+    return "СБ";
+  }
+
+  return "ОТКАЗ";
+}
+
+function getDocumentIssues(application) {
+  const issues = [];
+
+  if (application.riskCategory === "fraud") {
+    issues.push("passport", "income");
+  }
+
+  if (application.riskCategory === "bad" || application.creditScore < 600 || application.missedPayments > 2) {
+    issues.push("credit");
+  }
+
+  if (application.riskCategory === "borderline" && (application.yearsAtJob < 1 || application.loanAmount > application.income * 6)) {
+    issues.push("income");
+  }
+
+  return [...new Set(issues)];
+}
+
+function toggleFlag(flag) {
+  if (isLocked) {
+    return;
+  }
+
+  if (activeFlags.has(flag)) {
+    activeFlags.delete(flag);
+  } else {
+    activeFlags.add(flag);
+  }
+
+  renderFlagButtons();
+}
+
+function renderFlagButtons() {
+  elements.flagButtons.forEach((button) => {
+    button.classList.toggle("active", activeFlags.has(button.dataset.flag));
+  });
+}
+
+function applyRandomPortrait(application) {
+  const seed = makeSeed(`${application.name}-${state.processed}-${Date.now()}`);
+  const skinColors = ["#b9c6aa", "#c8b08c", "#9fb7a3", "#d0c0a0", "#a8b9c5", "#b49a83", "#c7a48f", "#9aa889", "#d4c7ad"];
+  const hairColors = ["#172222", "#2b241d", "#3d3324", "#56615a", "#1f1b28", "#6a3a2d", "#72664f", "#151515"];
+  const coatColors = {
+    good: ["#365b54", "#52664d", "#445e70", "#4f634f", "#565f68"],
+    borderline: ["#52664d", "#6a6542", "#445e70", "#6a5942", "#3f5c58"],
+    bad: ["#5a403b", "#654634", "#4c3b3b", "#5d3a31", "#4d4a39"],
+    fraud: ["#34324f", "#5c3156", "#2f3d5c", "#4f2735", "#252b4f"]
+  };
+  const hairShapes = [
+    "polygon(0 55%, 14% 0, 86% 0, 100% 55%, 82% 100%, 18% 100%)",
+    "polygon(0 20%, 75% 0, 100% 35%, 90% 80%, 18% 100%, 0 70%)",
+    "polygon(10% 0, 90% 0, 90% 45%, 72% 45%, 72% 100%, 18% 100%, 18% 45%, 10% 45%)",
+    "polygon(0 80%, 16% 20%, 38% 0, 64% 0, 100% 26%, 90% 100%, 50% 70%)",
+    "polygon(0 35%, 24% 0, 52% 18%, 84% 0, 100% 48%, 82% 100%, 15% 86%)",
+    "polygon(12% 0, 95% 24%, 82% 78%, 58% 100%, 15% 70%, 0 22%)"
+  ];
+  const faceShapes = [
+    "polygon(18% 0, 82% 0, 100% 35%, 86% 100%, 14% 100%, 0 35%)",
+    "polygon(12% 8%, 88% 8%, 96% 54%, 74% 100%, 26% 100%, 4% 54%)",
+    "polygon(25% 0, 75% 0, 100% 28%, 92% 88%, 50% 100%, 8% 88%, 0 28%)",
+    "polygon(10% 16%, 36% 0, 78% 6%, 100% 42%, 78% 100%, 24% 96%, 0 44%)",
+    "polygon(24% 0, 76% 0, 92% 18%, 100% 74%, 64% 100%, 28% 92%, 0 62%, 8% 18%)"
+  ];
+  const bodyShapes = [
+    "polygon(12% 100%, 12% 62%, 22% 62%, 22% 36%, 32% 36%, 32% 20%, 68% 20%, 68% 36%, 78% 36%, 78% 62%, 88% 62%, 88% 100%)",
+    "polygon(4% 100%, 14% 54%, 28% 54%, 28% 24%, 72% 24%, 72% 54%, 86% 54%, 96% 100%)",
+    "polygon(0 100%, 18% 48%, 34% 36%, 34% 18%, 66% 18%, 66% 36%, 82% 48%, 100% 100%)",
+    "polygon(18% 100%, 18% 58%, 10% 58%, 26% 34%, 36% 34%, 36% 18%, 64% 18%, 64% 34%, 74% 34%, 90% 58%, 82% 58%, 82% 100%)"
+  ];
+  const hatShapes = [
+    "polygon(0 70%, 18% 20%, 82% 20%, 100% 70%, 100% 100%, 0 100%)",
+    "polygon(10% 0, 90% 0, 90% 62%, 100% 62%, 100% 100%, 0 100%, 0 62%, 10% 62%)",
+    "polygon(0 58%, 28% 20%, 72% 20%, 100% 58%, 88% 100%, 12% 100%)",
+    "polygon(0 72%, 42% 0, 100% 72%, 100% 100%, 0 100%)"
+  ];
+
+  elements.clientFace.style.setProperty("--skin", pick(skinColors, seed));
+  elements.clientFace.style.setProperty("--hair", pick(hairColors, seed + 1));
+  elements.clientFace.style.setProperty("--coat", pick(coatColors[application.riskCategory], seed + 2));
+  elements.clientFace.style.setProperty("--collar", pick(["#d8ceb3", "#8b8f72", "#c49b37", "#f0eadc"], seed + 3));
+  elements.clientFace.style.setProperty("--hair-shape", pick(hairShapes, seed + 4));
+  elements.clientFace.style.setProperty("--face-shape", pick(faceShapes, seed + 5));
+  elements.clientFace.style.setProperty("--body-shape", pick(bodyShapes, seed + 6));
+  elements.clientFace.style.setProperty("--eye-w", pick(["4px", "5px", "7px"], seed + 7));
+  elements.clientFace.style.setProperty("--eye-h", pick(["3px", "4px", "5px"], seed + 8));
+
+  const hasHat = seed % 5 === 0 || application.riskCategory === "bad" || (application.riskCategory === "fraud" && seed % 2 === 0);
+  elements.clientFace.style.setProperty("--hat-display", hasHat ? "block" : "none");
+  elements.clientFace.style.setProperty("--hat", pick(["#2d241f", "#6a6542", "#7a2526", "#445e70", "#1f1b28"], seed + 9));
+  elements.clientFace.style.setProperty("--hat-shape", pick(hatShapes, seed + 10));
+
+  const hasGlasses = (seed % 4 === 0) || application.riskCategory === "fraud";
+  elements.clientFace.style.setProperty("--glasses-display", hasGlasses ? "block" : "none");
+  elements.clientFace.style.setProperty("--glasses", hasGlasses ? "#1a1715" : "transparent");
+}
+
+function typeClientSpeech(text) {
+  stopTypewriter(false);
+  clearMoodTimers();
+  elements.clientFace.classList.remove("idle", "sleepy", "angry-wait");
+  elements.clientFace.classList.add("speaking");
+
+  let index = 0;
+  const typeNext = () => {
+    elements.clientRequestText.textContent = text.slice(0, index);
+    index += 1;
+
+    if (index <= text.length) {
+      const currentChar = text[index - 2] || "";
+      const delay = currentChar === "." || currentChar === "," || currentChar === "!" || currentChar === "?" ? 55 : 14;
+      typewriterTimeout = window.setTimeout(typeNext, delay);
+      return;
+    }
+
+    elements.clientRequestText.textContent = text;
+    typewriterTimeout = window.setTimeout(() => {
+      stopTypewriter(false);
+      elements.applicationCard.classList.remove("document-sealed");
+      elements.applicationCard.classList.add("document-revealed");
+      clientShownAt = Date.now();
+      scheduleWaitingMood();
+    }, 1000);
+  };
+
+  typeNext();
+}
+
+function stopTypewriter(clearText = false) {
+  window.clearTimeout(typewriterTimeout);
+  typewriterTimeout = null;
+  elements.clientFace.classList.remove("speaking");
+  elements.clientFace.classList.add("idle");
+
+  if (clearText) {
+    elements.clientRequestText.textContent = "";
+  }
+}
+
+function scheduleWaitingMood() {
+  clearMoodTimers();
+  waitMoodTimeout = window.setTimeout(() => {
+    updateWaitingMood();
+  }, 7000);
+
+  angerMoodTimeout = window.setTimeout(() => {
+    updateWaitingMood();
+  }, 15000);
+}
+
+function updateWaitingMood() {
+  if (isLocked || !currentApplication || elements.clientFace.classList.contains("speaking")) {
+    return;
+  }
+
+  if (!clientShownAt) {
+    return;
+  }
+
+  const waitedMs = Date.now() - clientShownAt;
+
+  if (waitedMs >= 15000) {
+    elements.clientFace.classList.remove("sleepy");
+    elements.clientFace.classList.add("angry-wait");
+    return;
+  }
+
+  if (waitedMs >= 7000) {
+    elements.clientFace.classList.add("sleepy");
+  }
+}
+
+function clearMoodTimers() {
+  window.clearTimeout(waitMoodTimeout);
+  window.clearTimeout(angerMoodTimeout);
+  waitMoodTimeout = null;
+  angerMoodTimeout = null;
+  elements.clientFace.classList.remove("sleepy", "angry-wait", "happy", "angry-decision");
+}
+
+function clearDecisionAnimations() {
+  elements.clientCard.classList.remove("approve-flash", "reject-shake", "security-takeaway");
+  elements.securityScene.classList.remove("active");
+  elements.approveButton.classList.remove("pressed");
+  elements.rejectButton.classList.remove("pressed");
+  elements.fraudButton.classList.remove("pressed");
+}
+
+function flyApplicationToCorrectCounter() {
+  const source = elements.applicationCard.getBoundingClientRect();
+  const target = elements.correctValue.getBoundingClientRect();
+  const clone = document.createElement("div");
+
+  clone.className = "flying-application";
+  clone.textContent = "ЗАЯВКА";
+  clone.style.left = `${source.left + source.width * 0.5}px`;
+  clone.style.top = `${source.top + source.height * 0.28}px`;
+  clone.style.setProperty("--fly-x", `${target.left + target.width * 0.5 - (source.left + source.width * 0.5)}px`);
+  clone.style.setProperty("--fly-y", `${target.top + target.height * 0.5 - (source.top + source.height * 0.28)}px`);
+
+  document.body.appendChild(clone);
+  window.setTimeout(() => clone.remove(), 950);
+}
+
+function playDecisionAnimation(decision) {
+  clearDecisionAnimations();
+
+  if (decision === "approve") {
+    elements.clientCard.classList.add("approve-flash");
+    elements.clientFace.classList.add("happy");
+    elements.approveButton.classList.add("pressed");
+  }
+
+  if (decision === "reject") {
+    elements.clientCard.classList.add("reject-shake");
+    elements.clientFace.classList.add("angry-decision");
+    elements.rejectButton.classList.add("pressed");
+  }
+
+  if (decision === "fraud") {
+    elements.clientCard.classList.add("security-takeaway");
+    elements.securityScene.classList.add("active");
+    elements.fraudButton.classList.add("pressed");
+  }
+}
+
+function makeSeed(value) {
+  let hash = 0;
+
+  for (let index = 0; index < value.length; index += 1) {
+    hash = (hash * 31 + value.charCodeAt(index)) >>> 0;
+  }
+
+  return hash;
+}
+
+function pick(items, seed) {
+  return items[Math.abs(seed) % items.length];
+}
+
+function getRobotJoke(application) {
+  if (application.riskCategory === "fraud") {
+    return "РОБОТ: «Слишком идеально. Я тоже так в резюме писал»";
+  }
+
+  if (application.riskCategory === "bad") {
+    return "РОБОТ: «Одобрять нельзя, но можно сочувствовать»";
+  }
+
+  if (application.riskCategory === "borderline") {
+    return "РОБОТ: «Монетка просит не впутывать ее в кредитование»";
+  }
+
+  return "РОБОТ: «Скучно. Подозрительно надежно»";
+}
+
+function getClientRequest(application) {
+  const templatesByCategory = {
+    good: [
+      `Просит ${formatMoney(application.loanAmount)} на «${application.purpose}». Рассказывает спокойно: доход стабильный, платеж вписывается, дома уже спорят только о цвете обоев, а не о том, чем платить.`,
+      `Нужен кредит на «${application.purpose}». Клиент принес копии, оригиналы и еще одну папку «на всякий случай», потому что однажды победил районную бюрократию и теперь не может остановиться.`,
+      `Хочет ${formatMoney(application.loanAmount)}. Говорит, что не любит долги, но любит закрывать задачи по графику; звучит скучно, зато именно таких банк ставит на открытки.`,
+      `Просит деньги на «${application.purpose}» и заранее показывает календарь платежей. В календаре нет праздников, зато есть дисциплина, два напоминания и место для маленькой победы банка.`,
+      `Заявка на ${formatMoney(application.loanAmount)}. Клиент объясняет, что кредит нужен не для роскоши, а чтобы наконец перестать чинить старое решение скотчем и семейным оптимизмом.`,
+      `Говорит, что сумма большая только на бумаге, а в его бюджете уже лежит аккуратной строкой между коммуналкой и «не покупать лишний сыр». Документы выглядят так, будто их собирали при дневном свете.`,
+      `Просит кредит без драматического шепота и без фразы «у меня есть схема». Просто цель, доход, стаж и скучная уверенность человека, который хранит гарантийные талоны.`,
+      `Клиент пришел с папкой, где даже скрепки стоят по старшинству. Просит ${formatMoney(application.loanAmount)} и уверяет, что банк будет видеть платежи чаще, чем он видит отпуск.`,
+      `Нужны средства на «${application.purpose}». История бытовая, понятная, без внезапных инвесторов и двоюродных партнеров из гаража. Немного скучно, но скука тут похожа на прибыль.`,
+      `Клиент говорит: «Я не герой кредитного романа, мне просто нужно закрыть нормальную задачу». После этого показывает доход и стаж так уверенно, будто репетировал перед зеркалом бухгалтера.`
+    ],
+    borderline: [
+      `Просит ${formatMoney(application.loanAmount)} на «${application.purpose}». История звучит правдоподобно, но доход скачет так, будто его считает лифт в старом доме.`,
+      `Нужен кредит, потому что «сейчас чуть-чуть тяжело, а потом будет как в рекламе банка». В документах порядок, но порядок этот держится на честном слове и сезонных заказах.`,
+      `Клиент уверяет, что сумма под контролем. Папка толстая, план красивый, но стаж на месте работы еще даже не успел получить кружку с логотипом.`,
+      `Просит одобрить ${formatMoney(application.loanAmount)} и говорит, что «главное пережить пару месяцев». У банка от этой фразы слегка дергается левый глаз, но документы пока не падают со стола.`,
+      `История похожа на настоящую: работа есть, доход есть, цель есть. Проблема в том, что все это стоит на табуретке из переменных заказов и обещаний «с нового сезона точно лучше».`,
+      `Клиент говорит, что сумма нужна на рывок, а не на дыру. В заявке действительно есть рывок, но где-то рядом с ним сидит риск и тихо ест печенье из комнаты ожидания.`,
+      `Нужен кредит на «${application.purpose}». Клиент честно признает, что доход бывает неровным, зато уверяет, что характер у него ровный. БКИ слушает и не аплодирует.`,
+      `Просит ${formatMoney(application.loanAmount)} и раскладывает план так красиво, что хочется поверить. Но в плане есть строчка «если все пойдет нормально», а банк знает, как эта строчка умеет кусаться.`,
+      `Клиент пришел не с обманом, а с надеждой. Надежда в пиджаке, с печатью и справкой, но все равно просит проверить ее дважды.`,
+      `Сумма выглядит чуть смелее дохода. Клиент говорит, что смелость сейчас важна, но банковская инструкция просит не путать смелость с ежемесячным платежом.`
+    ],
+    bad: [
+      `Просит ${formatMoney(application.loanAmount)} на «${application.purpose}». Говорит, что прошлые просрочки были «техническими», хотя техника, судя по БКИ, работала несколько месяцев подряд.`,
+      `Клиент пришел с уверенным видом человека, который уже спорил с четырьмя банками и считает это опытом переговоров. Кредит нужен срочно, объяснения тоже срочные.`,
+      `Хочет новый кредит, чтобы стало легче со старыми. Это как тушить пожар бумагой, но бумага хотя бы официальная и с печатью.`,
+      `Просит сумму, которая смотрит на доход сверху вниз. Клиент уверяет, что «как-нибудь вытянет», а это выражение уже лежит в банковском музее рядом с разбитыми графиками платежей.`,
+      `Нужны деньги срочно, потому что старые обязательства перестали помещаться в один разговор. Клиент улыбается, но БКИ за его спиной держит папку потолще.`,
+      `Говорит, что просрочки были из-за обстоятельств. Обстоятельства, судя по истории, приходили регулярно, садились на диван и не собирались уходить.`,
+      `Клиент объясняет, что новый кредит поможет «перезапустить жизнь». Банк уже видел такие перезапуски: обычно они требуют пароль, которого никто не помнит.`,
+      `Просит ${formatMoney(application.loanAmount)} и называет это временной поддержкой. В документах временным выглядит только терпение кредитного комитета.`,
+      `История эмоциональная, почти убедительная, но цифры стоят в углу и молча портят спектакль. Особенно просрочки, которые пришли без билетов.`,
+      `Клиент говорит, что платежи задерживались «совсем чуть-чуть». БКИ показывает календарь, где это «чуть-чуть» успело завести соседей.`
+    ],
+    fraud: [
+      `Просит ${formatMoney(application.loanAmount)} на «${application.purpose}». Все слишком гладко: доход блестит, долгов нет, документы ровные, а улыбка такая, будто ее заверили у нотариуса.`,
+      `Клиент рассказывает историю уверенно, но детали меняют обувь прямо на ходу. Папка выглядит новой, печати пахнут свежестью, а «работодатель» отвечает быстрее, чем живые люди.`,
+      `Нужна крупная сумма «буквально до вечера». В анкете идеальный мир: высокий доход, ноль долгов и документы, которые будто родились в одном принтере в один счастливый час.`,
+      `Клиент говорит, что у него все прозрачно. Прозрачность такая сильная, что сквозь нее видно чужой шаблон справки, старый номер телефона и маленький бегущий риск.`,
+      `Просит ${formatMoney(application.loanAmount)} и торопит: «если сегодня не одобрите, сделка уйдет». Обычно вместе со сделкой в таких историях уходит и заявитель, причем быстрее курьера.`,
+      `История звучит гладко, как рекламный буклет банка, который никто не читал до конца. Доход идеален, долг нулевой, а паспорт почему-то спорит с собственными метаданными.`,
+      `Клиент принес папку, где все документы одинаково новые и одинаково уверенные. Даже скрепка выглядит так, будто прошла тренинг по продажам.`,
+      `Говорит, что работает давно, много зарабатывает и никогда не ошибается. Так обычно говорят либо роботы, либо люди, которые забыли, что у документов есть даты.`,
+      `Просит деньги на «${application.purpose}» и избегает деталей так ловко, будто детали ему должны денег. При этом справка о доходах сияет свежей типографской молодостью.`,
+      `Клиент уверяет, что банк ничем не рискует. Эта фраза сама по себе пытается нажать кнопку СБ, но пока держится из уважения к процедуре.`
+    ]
+  };
+
+  const templates = templatesByCategory[application.riskCategory].concat(getExtraClientRequests(application));
+
+  return templates[Math.floor(Math.random() * templates.length)];
+}
+
+function getInspectionMessage(application) {
+  const messagesByCategory = {
+    good: [
+      "Проверка: документы сходятся. Даже печать не пытается начать новую жизнь в другом регионе.",
+      "Проверка: работодатель подтвердил доход. Бухгалтер ответил сухо, значит, скорее всего, правдиво.",
+      "Проверка: БКИ спокойно, паспорт совпадает, справка не пахнет приключениями. Скука, но прибыльная.",
+      "Проверка: паспорт, доход и БКИ дружат между собой. Редкое зрелище, почти как очередь без человека с вопросом «я только спросить».",
+      "Проверка: доход подтвержден, просрочки не найдены. Документы настолько нормальные, что принтер рядом выглядит расслабленным.",
+      "Проверка: цель кредита понятна, работодатель живой, регион не меняется в зависимости от вкладки. Можно выдохнуть, но тихо.",
+      "Проверка: БКИ не возражает. Это не значит «одобрять автоматически», но значит, что сегодня оно хотя бы не кричит.",
+      "Проверка: все совпадает. Даже служебная инструкция на секунду перестала хмуриться."
+    ],
+    borderline: [
+      "Проверка: формально сходится, но риск сидит в углу и делает вид, что он комнатное растение.",
+      "Проверка: документы живые, но доход сезонный. Заявка не красная, скорее оранжевая с нервным тиком.",
+      "Проверка: паспорт нормальный, справка нормальная, БКИ вздыхает. Решение придется принимать взрослому человеку, сочувствую.",
+      "Проверка: работодатель подтверждает, но стаж короткий. Клиент еще не знает, где в офисе лежит запасная бумага для принтера.",
+      "Проверка: просрочек мало, но сумма смотрит на доход слишком уверенно. Такое надо решать головой, а не сердцем и не премией.",
+      "Проверка: документы сходятся, настроение не очень. Банк может заработать, а может получить урок экономики с домашним заданием.",
+      "Проверка: цель кредита понятная, но график платежей держится на оптимизме. Оптимизм в залог не принимается.",
+      "Проверка: красного флага нет, есть гирлянда из маленьких желтых. До праздника риска осталось пару шагов."
+    ],
+    bad: [
+      "Проверка: БКИ машет красным флагом. Клиент говорит, что это не флаг, а дизайнерский шарф.",
+      "Проверка: просрочки свежие, долг крупный. Документы настоящие, проблема тоже настоящая.",
+      "Проверка: платежная история напоминает расписание электричек в метель: теоретически существует, практически больно смотреть.",
+      "Проверка: долговая нагрузка высокая. Если одобрить, график платежей придется печатать на нервной бумаге.",
+      "Проверка: паспорт настоящий, доход настоящий, риск тоже настоящий и уже занял очередь к кассе.",
+      "Проверка: БКИ говорит «нет» без повышения голоса. Самый опасный вид «нет».",
+      "Проверка: просрочки не древние, а бодрые и свежие. Почти как хлеб, только финансово неприятные.",
+      "Проверка: клиент не мошенник. Просто кредитная история выглядит так, будто ей нужен отпуск и реструктуризация."
+    ],
+    fraud: [
+      "Проверка: найдена несостыковка. Бумаги слишком чистые, как совесть отдела продаж в рекламном буклете.",
+      "Проверка: возраст/регион/справка спорят между собой. Кто-то в этой папке врет, и это не скрепка.",
+      "Проверка: работодатель выглядит как фирма, созданная между кофе и обедом. СБ уже потянулась к телефону.",
+      "Проверка: справка о доходах слишком свежая. Такое ощущение, что чернила еще не успели поверить в свою легенду.",
+      "Проверка: документы совпадают только по настроению. По фактам они ведут себя как незнакомцы в лифте.",
+      "Проверка: паспортная история моргает красным. Если это ошибка, то очень талантливая и хорошо одетая.",
+      "Проверка: идеальный доход, ноль долгов, срочная крупная сумма. Три признака сказки, которую лучше читать вместе с СБ.",
+      "Проверка: номер справки подозрительно знаком. Похоже, он уже просил кредит под другим именем."
+    ]
+  };
+
+  const messages = messagesByCategory[application.riskCategory].concat(getExtraInspectionMessages(application));
+  return messages[Math.floor(Math.random() * messages.length)];
+}
+
+function getServiceNote(application) {
+  const notesByCategory = {
+    good: [
+      `${application.comment} Документы выглядят буднично, а будничность в кредитовании иногда дороже вдохновения.`,
+      `Платежная дисциплина ровная. Цель «${application.purpose}» понятна, сумма не пытается перепрыгнуть через доход.`,
+      `Стаж и доход подтверждаются. Если тут и есть драма, то только в очереди к принтеру.`,
+      `Клиент похож на человека, который читает договор до конца и потом еще спрашивает про приложение. Риск низкий, скука высокая.`,
+      `Долговая нагрузка умеренная. Заявка не пытается быть героем дня, и это ее главное достоинство.`,
+      `Профиль ровный: доход, стаж и цель не спорят между собой. Можно проверять без внутренней сирены.`,
+      `БКИ спокойное, документы подтверждены. Банковская рутина, но рутина иногда кормит лучше азарта.`,
+      `Сумма выглядит обслуживаемой. Вероятность сюрприза низкая, если только клиент внезапно не купит завод.`
+    ],
+    borderline: [
+      `${application.comment} Можно одобрить, но только если сегодня банк чувствует себя смелым и выспавшимся.`,
+      `Дело не провальное, но хрупкое: один плохой месяц, и график платежей начнет писать мемуары.`,
+      `Цель понятна, клиент похож на настоящего, но сумма и стабильность дохода спорят на повышенных тонах.`,
+      `Есть нормальные признаки, есть тревожные. Заявка как чай в столовой: пить можно, но осадок заметен.`,
+      `Документы не фальшивые, но запас прочности тонкий. Одобрение может окупиться, а может устроить маленькую бухгалтерскую драму.`,
+      `Доход подтверждается, но стабильность хромает. Решение зависит от того, насколько банк сегодня любит рискованные танцы.`,
+      `Кейс спорный: отказ безопасен, одобрение потенциально прибыльно. Инструкция делает вид, что не видит вашего взгляда.`,
+      `Заявка требует внимания к деталям. Одно поле выглядит нормально, второе шепчет: «а ты точно уверен?»`
+    ],
+    bad: [
+      `${application.comment} Платежная история уже сказала «нет», просто сделала это мелким шрифтом.`,
+      `Доход слабый относительно долга. Клиент просит доверия, но БКИ принесло факты и село рядом.`,
+      `Вероятность дефолта высокая. Одобрение будет похоже на благотворительность, только с отчетностью.`,
+      `Просрочки слишком заметны, чтобы считать их случайностью. Это уже не пятно на анкете, это оформление.`,
+      `Сумма и доход не дружат. Если одобрить, они продолжат конфликт уже в платежном календаре.`,
+      `Клиент может быть искренним, но банк выдает деньги не под искренность. БКИ напоминает об этом без юмора.`,
+      `История не мошенническая, но тяжелая. Лучшее решение может быть неприятным, зато дешевым.`,
+      `Платежная дисциплина слабая. Заявка просит доверия больше, чем показывает способности его вернуть.`
+    ],
+    fraud: [
+      `${application.comment} Слишком идеальные показатели требуют не восторга, а кнопки СБ.`,
+      `В документах есть запах свежего монтажа. Не буквальный, но бухгалтерия бы открыла окно.`,
+      `Несостыковки выглядят маленькими, пока не сложить их в одну большую табличку «не одобрять».`,
+      `Анкета гладкая до скрипа. У настоящих людей обычно есть хотя бы одна неловкая строчка.`,
+      `Работодатель, доход и документы выглядят как актеры из одной труппы. Пора спросить, кто режиссер.`,
+      `Файл слишком уверенный: ни долгов, ни ошибок, ни человеческого следа. Для банка это не мечта, а повод позвать СБ.`,
+      `Косвенные признаки складываются в неприятный узор. Если одобрить, потом этот узор будет висеть в отчете.`,
+      `Справки выглядят лучше, чем реальность. Реальность, к сожалению, обычно приходит с убытком.`
+    ]
+  };
+
+  const notes = notesByCategory[application.riskCategory].concat(getExtraServiceNotes(application));
+  return notes[Math.floor(Math.random() * notes.length)];
+}
+
+function getExtraClientRequests(application) {
+  return [
+    `Клиент просит ${formatMoney(application.loanAmount)} и говорит, что все документы «почти сами себя объясняют». В банке такие документы все равно сначала кладут под лампу, потом под сомнение.`,
+    `Говорит, что цель «${application.purpose}» простая, жизненная и вообще не требует драмы. Драма, правда, уже тихо стоит у двери с папкой БКИ.`,
+    `Клиент аккуратно поправляет документы и уверяет, что платеж потянет. Вид уверенный, но уверенность еще ни разу не закрывала ежемесячный взнос.`,
+    `Просит решить быстро: якобы вопрос горит. Банк знает, что гореть могут сделки, дедлайны и иногда кредитная история.`,
+    `Заявитель рассказывает про доход так подробно, будто защищает диплом по собственной платежеспособности. Осталось проверить, согласны ли с ним документы.`,
+    `Клиент говорит, что сумма нужна «ровно такая, не больше». Эта точность выглядит красиво, но банковский риск все равно считает на калькуляторе, а не на доверии.`,
+    `Просит кредит и улыбается слишком вовремя. Возможно, человек просто вежливый. Возможно, вежливость репетировали вместе со справкой.`,
+    `История начинается с бытовой цели и заканчивается фразой «ну вы же понимаете». Аналитик понимает, поэтому открывает документы.`,
+    `Клиент уверяет, что после кредита станет легче. Банк уточняет молча: кому именно станет легче, клиенту или будущему отчету об убытках.`,
+    `Просит рассмотреть заявку без предвзятости. Это разумно: предвзятость убираем, БКИ оставляем.`,
+    `Просит ${formatMoney(application.loanAmount)} на «${application.purpose}» и говорит, что это не кредит, а «мостик в нормальную жизнь». Мостик, правда, построен из справок, надежды и одного очень уверенного взгляда.`,
+    `Клиент начинает с фразы «я все посчитал», что в банке звучит одновременно приятно и тревожно. Потом показывает расчеты, где каждая строка старается выглядеть взрослее своей долговой нагрузки.`,
+    `Нужна сумма ${formatMoney(application.loanAmount)}. По словам клиента, деньги решат проблему окончательно, а не создадут новую с красивым графиком платежей и ежемесячным напоминанием.`,
+    `Клиент уверяет, что готов платить дисциплинированно: в день зарплаты, до кофе, до новостей и до того, как жизнь предложит что-нибудь срочное и дорогое.`,
+    `Просит кредит и держит папку так крепко, будто внутри не документы, а последний шанс объяснить банку, что все будет хорошо.`,
+    `История начинается обычно: работа, цель, сумма. Потом появляются детали, и становится ясно, что заявка либо очень человеческая, либо очень хорошо репетировала человеческость.`,
+    `Клиент говорит, что кредит нужен «ненадолго». В банковской практике это слово обычно проверяют дважды, потому что «ненадолго» иногда взрослеет в «реструктуризацию».`,
+    `Просит помочь с «${application.purpose}». Объясняет долго, старается шутить, но поглядывает на кнопку СБ так, будто она читает мысли.`,
+    `Клиент пришел с легендой, документами и фразой «там все просто». В банке после этой фразы обычно становится сложнее.`,
+    `Заявка на ${formatMoney(application.loanAmount)}. Клиент уверяет, что сумма разумная, если смотреть на нее не как на долг, а как на временное недоразумение с процентами.`,
+    `Просит не тянуть с решением: «у меня там люди ждут». Какие люди, где ждут и почему у них нет нормального договора, клиент объясняет с художественными паузами.`,
+    `Клиент описывает цель так подробно, что на секунду кажется, будто кредит уже одобрен. Потом взгляд падает на БКИ, и сцена становится менее праздничной.`,
+    `Говорит, что банк может доверять ему как соседу по лестничной клетке. Банк, к счастью, доверяет не соседям, а документам.`,
+    `Просит ${formatMoney(application.loanAmount)} и добавляет, что «сумма круглая, значит удобная». Кредитный комитет не уверен, что геометрия работает именно так.`,
+    `Клиент признает, что переживает. Это выглядит честно. Но в кредитном деле честное волнение и платежеспособность живут в разных кабинетах.`,
+    `История звучит почти убедительно: цель понятна, эмоции настоящие, папка тяжелая. Осталось понять, тяжелая она от документов или от будущих проблем.`,
+    `Клиент рассказывает, что уже отказался от лишних расходов. В списке лишнего почему-то нет нового кредита, но есть кофе, отпуск и «пока не покупать лампу».`,
+    `Просит кредит как человек, который уже мысленно подписал договор. В реальности договор пока смотрит на него издалека и ждет решения аналитика.`,
+    `Клиент уверяет, что не подведет банк. Банк слышал это много раз и поэтому завел БКИ, скоринг и эту мрачную комнату.`,
+    `Заявитель говорит, что деньги нужны «для порядка». Интересно, что порядок в документах наступает только после проверки, а не после уверенной интонации.`
+  ];
+}
+
+function getExtraInspectionMessages(application) {
+  return [
+    "Проверка: анкета открыта, документы сверены. Один показатель улыбается, второй просит не верить первому.",
+    "Проверка: паспорт и справка поставлены рядом. Если они родственники, то дальние и с разными версиями семейной истории.",
+    "Проверка: БКИ достало фонарик и посветило в прошлое. Там не всегда красиво, зато информативно.",
+    "Проверка: работодатель найден, но энтузиазм клиента найден быстрее. Энтузиазм в реестрах не числится.",
+    "Проверка: часть данных выглядит штатно. Остальная часть делает вид, что просто проходила мимо.",
+    "Проверка: фото в паспорте сверено с лицом у окна. Иногда бумага помнит человека лучше, чем его легенда.",
+    "Проверка: справка о доходах выдержала первый взгляд. Второй взгляд она переносит хуже.",
+    "Проверка: долговая нагрузка пересчитана. Цифры не спорят, они просто молча кладут руку на кнопку отказа.",
+    "Проверка: формальных ошибок мало, но косвенные признаки начали собираться в маленький комитет.",
+    "Проверка: документы не развалились, но решение все равно требует холодной головы и крепкого стула.",
+    "Проверка: паспорт не убежал, справка не расплакалась, БКИ пока держит лицо. Это уже лучше среднего утра.",
+    "Проверка: документы прошли первичный осмотр. Скрепка нервничала, но юридической силы это не имеет.",
+    "Проверка: в справке нет явных чудес, кроме оптимизма заявителя. Оптимизм отмечен карандашом.",
+    "Проверка: БКИ открылось без спецэффектов. Если это плохой знак, то очень тихий.",
+    "Проверка: доход, долг и цель поставлены рядом. Они не дерутся, но и за руки не держатся.",
+    "Проверка: паспорт выглядит уверенно. Настолько уверенно, что хочется проверить его еще раз из вредности.",
+    "Проверка: работодатель существует. Это низкая планка, но сегодня она уже кого-то спасла.",
+    "Проверка: сумма кредита сравнилась с доходом и сделала вид, что они давно знакомы.",
+    "Проверка: просрочки найдены или не найдены, но БКИ точно хотело поговорить о прошлом.",
+    "Проверка: документы выглядят как документы. В этом деле это не комплимент, а только начало.",
+    "Проверка: справка о доходах читается. Печать тоже читается. Теперь бы еще понять, стоит ли им верить.",
+    "Проверка: регион, возраст и работодатель сверены. География не кричит, хронология не падает со стула.",
+    "Проверка: робот скоринга выдал вердикт и снова ушел молчать в свой железный шкаф.",
+    "Проверка: все основные поля сверены. Человеческий фактор найден, но он сидит по другую сторону стекла.",
+    "Проверка: документальная картина стала яснее. К сожалению, яснее не всегда значит приятнее.",
+    "Проверка: БКИ шуршит страницами прошлого. Некоторые страницы лучше не читать перед обедом.",
+    "Проверка: справка и анкета сравнились. Одна из них явно старалась выглядеть лучше.",
+    "Проверка: следов грубой подделки нет. Следы тонкой глупости еще изучаются.",
+    "Проверка: риск не исчез, но хотя бы перестал прятаться за красивой формулировкой.",
+    "Проверка: если это мошенничество, оно пришло в галстуке. Если нет, галстук все равно подозрительный."
+  ];
+}
+
+function getExtraServiceNotes(application) {
+  return [
+    `Служебно: не принимать красивую историю за обеспечение. Обеспечение должно быть в цифрах, а не в интонации.`,
+    `Обратить внимание на соотношение суммы ${formatMoney(application.loanAmount)} и подтвержденного дохода. Там часто начинается настоящая игра.`,
+    `Если клиент торопит, проверять медленнее. Срочность иногда заменяет аргументы, но не снижает риск.`,
+    `Фото, паспорт и регион полезно держать в одной голове. Когда они расходятся, СБ обычно скучать перестает.`,
+    `Справка может выглядеть аккуратно и все равно быть проблемой. Принтеры тоже умеют производить уверенность.`,
+    `Решение лучше принимать после проверки вкладок, а не после первой симпатичной фразы клиента.`,
+    `Заявка может быть спорной без мошенничества. Не всякий риск злой, но почти всякий риск дорогой.`,
+    `Если БКИ выглядит тревожно, не спорьте с ним голосом клиента. Клиент уйдет, запись останется.`,
+    `Служебная заметка: идеальная анкета иногда опаснее неидеальной, потому что расслабляет руку со штампом.`,
+    `Проверить не только документы, но и то, как они сочетаются. Разные правды в одной папке обычно дают один убыток.`,
+    `Сумма ${formatMoney(application.loanAmount)} требует аккуратной оценки. Клиент говорит уверенно, но уверенность не является видом обеспечения.`,
+    `Цель «${application.purpose}» стоит проверить не по эмоциям, а по способности платить после первого месяца энтузиазма.`,
+    `Документы дают достаточно материала для решения. Осталось не перепутать сочувствие с кредитной политикой.`,
+    `Клиентская история звучит живо. Но банк зарабатывает не на историях, а на возврате денег по графику.`,
+    `Отдельно смотреть: долг, стаж, просрочки и странные совпадения. Особенно странные совпадения, они редко приходят одни.`,
+    `Файл не должен решаться по одному красивому показателю. Красивые показатели иногда работают ширмой.`,
+    `Заявка требует холодной головы. Горячее сердце можно оставить для столовой и праздничных рассылок.`,
+    `При одобрении возможна прибыль, при ошибке возможен отчет. Отчеты обычно длиннее радости.`,
+    `Проверить логику цели. Если цель звучит туманно, деньги в тумане обычно не возвращаются.`,
+    `Служебно: клиент старается выглядеть надежно. Это мило, но надежность должна быть в цифрах.`,
+    `Риск лучше оценивать до штампа, потому что после штампа он становится бухгалтерским событием.`,
+    `В деле есть признаки, которые можно трактовать мягко. Но мягкость в кредитовании часто платит чужими деньгами.`,
+    `Если сомневаетесь, смотрите на БКИ. Оно не всегда право, но редко пытается понравиться.`,
+    `Документы аккуратные. Аккуратность плюс, но слишком аккуратная аккуратность иногда просит кнопку СБ.`,
+    `Решение должно быть быстрым, но не слепым. Таймер давит, убытки давят сильнее.`,
+    `Кредитная история важнее красивой речи у окна. Речь исчезнет, платеж останется.`,
+    `Стаж и доход проверять вместе. По отдельности они любят притворяться крепче, чем есть.`,
+    `Просрочки не всегда приговор, но всегда повод перестать улыбаться анкете.`,
+    `Мошенник часто выглядит спокойнее честного клиента. Честному страшно, мошенник репетировал.`,
+    `Запомнить: отказ плохому клиенту приносит меньше радости, чем предотвращенный дефолт приносит пользы.`
+  ];
+}
+
+elements.startButton.addEventListener("click", startGame);
+elements.playAgainButton.addEventListener("click", startGame);
+elements.approveButton.addEventListener("click", () => handleDecision("approve"));
+elements.rejectButton.addEventListener("click", () => handleDecision("reject"));
+elements.fraudButton.addEventListener("click", () => handleDecision("fraud"));
+elements.inspectButton.addEventListener("click", inspectDocuments);
+elements.flagButtons.forEach((button) => {
+  button.addEventListener("click", () => toggleFlag(button.dataset.flag));
+});
+elements.docTabs.forEach((tab) => {
+  tab.addEventListener("click", () => {
+    if (!currentApplication) {
+      return;
+    }
+
+    activeDocument = tab.dataset.doc;
+    renderDocumentTabs();
+    renderDocument(currentApplication);
+  });
+});
+
+document.addEventListener("keydown", (event) => {
+  if (!elements.gameScreen.classList.contains("screen-active")) {
+    return;
+  }
+
+  if (event.key === "ArrowRight") {
+    handleDecision("approve");
+  }
+
+  if (event.key === "ArrowLeft") {
+    handleDecision("reject");
+  }
+
+  if (event.key === "ArrowDown") {
+    handleDecision("fraud");
+  }
+});
+
+showScreen("start");
+
+  </script>
+</body>
+</html>
