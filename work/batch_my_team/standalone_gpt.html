@@ -1,0 +1,661 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Batch patch users</title>
+  <style>
+    :root {
+      --bg: #0b1020;
+      --panel: #121a2b;
+      --panel-2: #18233a;
+      --text: #e8eefc;
+      --muted: #a8b3cf;
+      --accent: #6ea8fe;
+      --ok: #2fbf71;
+      --warn: #f6c453;
+      --err: #ef5b5b;
+      --border: #2a3550;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: Inter, Arial, sans-serif;
+      background: linear-gradient(180deg, #0b1020 0%, #0f1628 100%);
+      color: var(--text);
+    }
+
+    .wrap {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 24px;
+    }
+
+    h1 {
+      margin: 0 0 8px;
+      font-size: 28px;
+    }
+
+    .sub {
+      color: var(--muted);
+      margin-bottom: 20px;
+      line-height: 1.5;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1.1fr 0.9fr;
+      gap: 20px;
+    }
+
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 16px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    }
+
+    label {
+      display: block;
+      font-weight: 600;
+      margin-bottom: 10px;
+    }
+
+    textarea {
+      width: 100%;
+      min-height: 420px;
+      resize: vertical;
+      background: #0b1324;
+      color: var(--text);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 14px;
+      font: 14px/1.5 Consolas, Monaco, monospace;
+      outline: none;
+    }
+
+    textarea:focus, input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(110,168,254,0.15);
+    }
+
+    .row {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      align-items: center;
+      margin-top: 14px;
+    }
+
+    input[type="text"] {
+      flex: 1;
+      min-width: 320px;
+      background: #0b1324;
+      color: var(--text);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px 14px;
+      font-size: 14px;
+    }
+
+    button {
+      border: 0;
+      border-radius: 12px;
+      padding: 12px 16px;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .btn-primary {
+      background: var(--accent);
+      color: #08101f;
+    }
+
+    .btn-secondary {
+      background: var(--panel-2);
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
+
+    .btn-primary:disabled,
+    .btn-secondary:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    .status {
+      margin-top: 12px;
+      color: var(--muted);
+      min-height: 22px;
+    }
+
+    .summary {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .metric {
+      background: var(--panel-2);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 14px;
+    }
+
+    .metric .label {
+      color: var(--muted);
+      font-size: 12px;
+      margin-bottom: 6px;
+    }
+
+    .metric .value {
+      font-size: 24px;
+      font-weight: 800;
+    }
+
+    .log {
+      max-height: 220px;
+      overflow: auto;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: #0b1324;
+      padding: 12px;
+      font: 13px/1.5 Consolas, Monaco, monospace;
+      white-space: pre-wrap;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 16px;
+      font-size: 14px;
+    }
+
+    th, td {
+      text-align: left;
+      padding: 10px 8px;
+      border-bottom: 1px solid var(--border);
+      vertical-align: top;
+    }
+
+    th {
+      color: var(--muted);
+      font-size: 12px;
+      position: sticky;
+      top: 0;
+      background: var(--panel);
+    }
+
+    .table-wrap {
+      max-height: 420px;
+      overflow: auto;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+    }
+
+    .pill {
+      display: inline-block;
+      padding: 4px 8px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .ok { background: rgba(47,191,113,0.18); color: #8ef0b8; }
+    .warn { background: rgba(246,196,83,0.18); color: #ffe08a; }
+    .err { background: rgba(239,91,91,0.18); color: #ffaaaa; }
+
+    .hint {
+      margin-top: 10px;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    code {
+      background: #0b1324;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 2px 6px;
+    }
+
+    @media (max-width: 980px) {
+      .grid { grid-template-columns: 1fr; }
+      .summary { grid-template-columns: repeat(2, 1fr); }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>Batch PATCH users</h1>
+    <div class="sub">
+      Вставь массив пользователей, нажми <b>Запустить</b>, и страница выполнит PATCH по specialization и working-schedule для каждого login.
+      Время задается как локальное <b>09:00–18:00</b> и обед <b>14:00–16:00</b>, затем переводится в UTC по полю <code>timeZone</code>.
+    </div>
+
+    <div class="grid">
+      <div class="card">
+        <label for="usersInput">Массив users</label>
+        <textarea id="usersInput" spellcheck="false">[
+  { login: "1731853", timeZone: "3", grade: "7" },
+  { login: "1737543", timeZone: "2", grade: "8" },
+  { login: "1234567", timeZone: "0", grade: "" }
+]</textarea>
+
+        <div class="row">
+          <input id="baseUrlInput" type="text" value="https://sbof-iam-prom.omega.sbrf.ru/core/api/constructor-user-service/v1/users" />
+        </div>
+
+        <div class="row">
+          <button id="runBtn" class="btn-primary">Запустить</button>
+          <button id="stopBtn" class="btn-secondary" disabled>Остановить</button>
+          <button id="sampleBtn" class="btn-secondary">Подставить пример</button>
+          <button id="clearBtn" class="btn-secondary">Очистить результаты</button>
+        </div>
+
+        <div id="status" class="status">Готово к запуску.</div>
+        <div class="hint">
+          Поддерживается и обычный JSON, и JS-литерал вида <code>{ login: "1731853", timeZone: "3", grade: "7" }</code>.<br>
+          Для <code>grade=7</code> уйдет <code>["EXPERT"]</code>, для <code>grade=8</code> — <code>["MENTOR"]</code>, для <code>0</code> или пустого — <code>[]</code>.
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="summary">
+          <div class="metric"><div class="label">Всего</div><div class="value" id="mTotal">0</div></div>
+          <div class="metric"><div class="label">Полностью OK</div><div class="value" id="mOk">0</div></div>
+          <div class="metric"><div class="label">Частично</div><div class="value" id="mPartial">0</div></div>
+          <div class="metric"><div class="label">Ошибки</div><div class="value" id="mFail">0</div></div>
+        </div>
+
+        <label>Лог</label>
+        <div id="log" class="log">Пока пусто.</div>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top: 20px;">
+      <label>Результаты</label>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>login</th>
+              <th>timeZone</th>
+              <th>grade</th>
+              <th>specialization</th>
+              <th>schedule</th>
+              <th>specialization error</th>
+              <th>schedule error</th>
+            </tr>
+          </thead>
+          <tbody id="resultsBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    (() => {
+      const usersInput = document.getElementById('usersInput');
+      const baseUrlInput = document.getElementById('baseUrlInput');
+      const runBtn = document.getElementById('runBtn');
+      const stopBtn = document.getElementById('stopBtn');
+      const sampleBtn = document.getElementById('sampleBtn');
+      const clearBtn = document.getElementById('clearBtn');
+      const statusEl = document.getElementById('status');
+      const logEl = document.getElementById('log');
+      const resultsBody = document.getElementById('resultsBody');
+      const mTotal = document.getElementById('mTotal');
+      const mOk = document.getElementById('mOk');
+      const mPartial = document.getElementById('mPartial');
+      const mFail = document.getElementById('mFail');
+
+      let stopRequested = false;
+      let running = false;
+      let results = [];
+
+      const SAMPLE = `[
+  { login: "1731853", timeZone: "3", grade: "7" },
+  { login: "1737543", timeZone: "2", grade: "8" },
+  { login: "1234567", timeZone: "0", grade: "" }
+]`;
+
+      function setStatus(text) {
+        statusEl.textContent = text;
+      }
+
+      function log(text) {
+        const now = new Date().toLocaleTimeString();
+        if (logEl.textContent === 'Пока пусто.') logEl.textContent = '';
+        logEl.textContent += `[${now}] ${text}\n`;
+        logEl.scrollTop = logEl.scrollHeight;
+      }
+
+      function escapeHtml(value) {
+        return String(value ?? '')
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;')
+          .replace(/'/g, '&#039;');
+      }
+
+      function parseUsersInput(raw) {
+        const text = raw.trim();
+        if (!text) throw new Error('Поле users пустое');
+
+        try {
+          return JSON.parse(text);
+        } catch (_) {}
+
+        try {
+          return Function(`"use strict"; return (${text});`)();
+        } catch (e) {
+          throw new Error('Не удалось распарсить массив. Вставь валидный JSON или JS-массив объектов. ' + e.message);
+        }
+      }
+
+      function pad2(n) {
+        return String(n).padStart(2, '0');
+      }
+
+      function normalizeGrade(grade) {
+        if (grade === null || grade === undefined || grade === '') return [];
+        const g = String(grade).trim();
+        if (g === '7') return ['EXPERT'];
+        if (g === '8') return ['MENTOR'];
+        if (g === '0') return [];
+        return [];
+      }
+
+      function parseTimeZone(timeZone) {
+        if (timeZone === null || timeZone === undefined || timeZone === '') {
+          throw new Error('timeZone пустой или отсутствует');
+        }
+        const tz = Number(String(timeZone).replace(',', '.').trim());
+        if (Number.isNaN(tz)) throw new Error(`Некорректный timeZone: ${timeZone}`);
+        return tz;
+      }
+
+      function shiftLocalTimeToUtc(dayOfWeek, hour, minute, tzOffset) {
+        let utcHourFloat = hour - tzOffset;
+        let utcDay = dayOfWeek;
+
+        while (utcHourFloat < 0) {
+          utcHourFloat += 24;
+          utcDay -= 1;
+          if (utcDay < 1) utcDay = 7;
+        }
+
+        while (utcHourFloat >= 24) {
+          utcHourFloat -= 24;
+          utcDay += 1;
+          if (utcDay > 7) utcDay = 1;
+        }
+
+        return {
+          dayOfWeek: utcDay,
+          time: `${pad2(Math.floor(utcHourFloat))}:${pad2(minute)}:00`
+        };
+      }
+
+      function buildWorkingSchedule(timeZone) {
+        const tz = parseTimeZone(timeZone);
+        const sourceDays = [1, 2, 3, 4, 5];
+        const raw = [];
+
+        for (const day of sourceDays) {
+          const workStart = shiftLocalTimeToUtc(day, 9, 0, tz);
+          const lunchStart = shiftLocalTimeToUtc(day, 14, 0, tz);
+          const lunchEnd = shiftLocalTimeToUtc(day, 16, 0, tz);
+          const workEnd = shiftLocalTimeToUtc(day, 18, 0, tz);
+
+          const dayBuckets = new Map();
+          function ensure(d) {
+            if (!dayBuckets.has(d)) {
+              dayBuckets.set(d, {
+                dayOfWeek: d,
+                workStart: null,
+                workEnd: null,
+                lunchStart: null,
+                lunchEnd: null
+              });
+            }
+            return dayBuckets.get(d);
+          }
+
+          ensure(workStart.dayOfWeek).workStart = workStart.time;
+          ensure(workEnd.dayOfWeek).workEnd = workEnd.time;
+          ensure(lunchStart.dayOfWeek).lunchStart = lunchStart.time;
+          ensure(lunchEnd.dayOfWeek).lunchEnd = lunchEnd.time;
+
+          raw.push(...dayBuckets.values());
+        }
+
+        const merged = new Map();
+        for (const item of raw) {
+          if (!merged.has(item.dayOfWeek)) {
+            merged.set(item.dayOfWeek, { ...item });
+          } else {
+            const current = merged.get(item.dayOfWeek);
+            if (item.workStart !== null) current.workStart = item.workStart;
+            if (item.workEnd !== null) current.workEnd = item.workEnd;
+            if (item.lunchStart !== null) current.lunchStart = item.lunchStart;
+            if (item.lunchEnd !== null) current.lunchEnd = item.lunchEnd;
+          }
+        }
+
+        return Array.from(merged.values())
+          .filter(x => x.workStart || x.workEnd || x.lunchStart || x.lunchEnd)
+          .sort((a, b) => a.dayOfWeek - b.dayOfWeek);
+      }
+
+      async function patchJson(url, body) {
+        const response = await fetch(url, {
+          method: 'PATCH',
+          credentials: 'include',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(body)
+        });
+
+        const text = await response.text();
+        let data = null;
+        try {
+          data = text ? JSON.parse(text) : null;
+        } catch {
+          data = text;
+        }
+
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status} ${response.statusText}${text ? ' | ' + (typeof data === 'string' ? data : JSON.stringify(data)) : ''}`);
+        }
+
+        return data;
+      }
+
+      function updateSummary() {
+        const total = results.length;
+        const ok = results.filter(x => x.specializationStatus === 'OK' && x.scheduleStatus === 'OK').length;
+        const partial = results.filter(x =>
+          (x.specializationStatus === 'OK' && x.scheduleStatus !== 'OK') ||
+          (x.specializationStatus !== 'OK' && x.scheduleStatus === 'OK')
+        ).length;
+        const fail = results.filter(x => x.specializationStatus !== 'OK' && x.scheduleStatus !== 'OK').length;
+
+        mTotal.textContent = total;
+        mOk.textContent = ok;
+        mPartial.textContent = partial;
+        mFail.textContent = fail;
+      }
+
+      function pill(status) {
+        const cls = status === 'OK' ? 'ok' : status === 'PENDING' ? 'warn' : 'err';
+        return `<span class="pill ${cls}">${escapeHtml(status)}</span>`;
+      }
+
+      function renderResults() {
+        resultsBody.innerHTML = results.map(r => `
+          <tr>
+            <td>${escapeHtml(r.login)}</td>
+            <td>${escapeHtml(r.timeZone)}</td>
+            <td>${escapeHtml(r.grade)}</td>
+            <td>${pill(r.specializationStatus)}</td>
+            <td>${pill(r.scheduleStatus)}</td>
+            <td>${escapeHtml(r.specializationError || '')}</td>
+            <td>${escapeHtml(r.scheduleError || '')}</td>
+          </tr>
+        `).join('');
+        updateSummary();
+      }
+
+      async function processUser(user, baseUrl) {
+        const login = user?.login?.trim?.() || user?.login;
+        if (!login) throw new Error('У пользователя отсутствует login');
+
+        const specializationPayload = {
+          specializations: normalizeGrade(user.grade)
+        };
+        const schedulePayload = buildWorkingSchedule(user.timeZone);
+
+        const result = {
+          login,
+          timeZone: user.timeZone ?? '',
+          grade: user.grade ?? '',
+          specializationStatus: 'PENDING',
+          scheduleStatus: 'PENDING',
+          specializationError: '',
+          scheduleError: ''
+        };
+
+        try {
+          await patchJson(`${baseUrl}/${login}/specialization`, specializationPayload);
+          result.specializationStatus = 'OK';
+        } catch (e) {
+          result.specializationStatus = 'ERROR';
+          result.specializationError = e.message;
+        }
+
+        try {
+          await patchJson(`${baseUrl}/${login}/working-schedule`, schedulePayload);
+          result.scheduleStatus = 'OK';
+        } catch (e) {
+          result.scheduleStatus = 'ERROR';
+          result.scheduleError = e.message;
+        }
+
+        return result;
+      }
+
+      function setRunningState(value) {
+        running = value;
+        runBtn.disabled = value;
+        stopBtn.disabled = !value;
+        sampleBtn.disabled = value;
+        clearBtn.disabled = value;
+        usersInput.disabled = value;
+        baseUrlInput.disabled = value;
+      }
+
+      async function run() {
+        if (running) return;
+        stopRequested = false;
+        results = [];
+        logEl.textContent = 'Пока пусто.';
+        renderResults();
+
+        let users;
+        try {
+          users = parseUsersInput(usersInput.value);
+        } catch (e) {
+          setStatus('Ошибка в users');
+          log(e.message);
+          return;
+        }
+
+        if (!Array.isArray(users)) {
+          setStatus('Ошибка в users');
+          log('Вставленные данные должны быть массивом.');
+          return;
+        }
+
+        const baseUrl = baseUrlInput.value.trim().replace(/\/$/, '');
+        if (!baseUrl) {
+          setStatus('Базовый URL пустой');
+          return;
+        }
+
+        setRunningState(true);
+        setStatus(`Запуск. Пользователей: ${users.length}`);
+        log(`Старт. Пользователей к обработке: ${users.length}`);
+
+        for (let i = 0; i < users.length; i++) {
+          if (stopRequested) {
+            log('Остановлено пользователем.');
+            break;
+          }
+
+          const user = users[i];
+          const login = user?.login ?? '(empty)';
+          setStatus(`Обработка ${i + 1}/${users.length}: ${login}`);
+          log(`Обработка ${i + 1}/${users.length}: login=${login}`);
+
+          try {
+            const result = await processUser(user, baseUrl);
+            results.push(result);
+            renderResults();
+            log(`login=${login} | specialization=${result.specializationStatus} | schedule=${result.scheduleStatus}`);
+            if (result.specializationError) log(`login=${login} | specialization error: ${result.specializationError}`);
+            if (result.scheduleError) log(`login=${login} | schedule error: ${result.scheduleError}`);
+          } catch (e) {
+            results.push({
+              login,
+              timeZone: user?.timeZone ?? '',
+              grade: user?.grade ?? '',
+              specializationStatus: 'ERROR',
+              scheduleStatus: 'ERROR',
+              specializationError: e.message,
+              scheduleError: e.message
+            });
+            renderResults();
+            log(`login=${login} | critical error: ${e.message}`);
+          }
+        }
+
+        const ok = results.filter(x => x.specializationStatus === 'OK' && x.scheduleStatus === 'OK').length;
+        const partial = results.filter(x =>
+          (x.specializationStatus === 'OK' && x.scheduleStatus !== 'OK') ||
+          (x.specializationStatus !== 'OK' && x.scheduleStatus === 'OK')
+        ).length;
+        const fail = results.filter(x => x.specializationStatus !== 'OK' && x.scheduleStatus !== 'OK').length;
+
+        setStatus(stopRequested ? 'Остановлено.' : 'Готово.');
+        log(`Итог: OK=${ok}, partial=${partial}, fail=${fail}`);
+        setRunningState(false);
+      }
+
+      runBtn.addEventListener('click', run);
+      stopBtn.addEventListener('click', () => {
+        stopRequested = true;
+        setStatus('Останавливаю после текущего запроса...');
+      });
+      sampleBtn.addEventListener('click', () => {
+        usersInput.value = SAMPLE;
+      });
+      clearBtn.addEventListener('click', () => {
+        results = [];
+        resultsBody.innerHTML = '';
+        logEl.textContent = 'Пока пусто.';
+        updateSummary();
+        setStatus('Результаты очищены.');
+      });
+
+      updateSummary();
+    })();
+  </script>
+</body>
+</html>
