@@ -1,0 +1,359 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8" />
+  <title>SBOF — массовое обновление specialization + working-schedule</title>
+  <style>
+    :root {
+      --bg: #0f1115;
+      --panel: #171a21;
+      --panel-2: #1f232c;
+      --text: #e7e9ee;
+      --muted: #9aa3b2;
+      --accent: #22c55e;
+      --accent-2: #16a34a;
+      --danger: #ef4444;
+      --warn: #f59e0b;
+      --border: #2a2f3a;
+      --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      padding: 24px;
+    }
+    h1 { font-size: 18px; margin: 0 0 12px; }
+    p.sub { color: var(--muted); margin: 0 0 16px; font-size: 13px; }
+    .row { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; margin-bottom: 12px; }
+    label { font-size: 13px; color: var(--muted); }
+    textarea {
+      width: 100%;
+      min-height: 220px;
+      background: var(--panel);
+      color: var(--text);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 12px;
+      font-family: var(--mono);
+      font-size: 13px;
+      line-height: 1.5;
+      resize: vertical;
+    }
+    textarea:focus { outline: 2px solid var(--accent-2); }
+    button {
+      background: var(--accent);
+      color: #05210f;
+      border: 0;
+      padding: 10px 16px;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+      font-size: 14px;
+    }
+    button:hover { background: var(--accent-2); color: #fff; }
+    button.secondary {
+      background: var(--panel-2);
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
+    button:disabled { opacity: .6; cursor: not-allowed; }
+    #log {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 12px;
+      margin-top: 12px;
+      font-family: var(--mono);
+      font-size: 12.5px;
+      white-space: pre-wrap;
+      max-height: 260px;
+      overflow: auto;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 12px;
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      overflow: hidden;
+      font-size: 13px;
+    }
+    th, td {
+      padding: 8px 10px;
+      border-bottom: 1px solid var(--border);
+      text-align: left;
+      vertical-align: top;
+      font-family: var(--mono);
+    }
+    th { background: var(--panel-2); color: var(--muted); font-weight: 600; }
+    tr:last-child td { border-bottom: 0; }
+    .ok   { color: var(--accent); font-weight: 600; }
+    .fail { color: var(--danger); font-weight: 600; }
+    .warn { color: var(--warn); font-weight: 600; }
+    .muted { color: var(--muted); }
+    .note {
+      background: #1a2333;
+      border: 1px solid #24344d;
+      color: #cfe0ff;
+      padding: 10px 12px;
+      border-radius: 8px;
+      margin: 12px 0;
+      font-size: 12.5px;
+    }
+    summary { cursor: pointer; color: var(--muted); }
+    code.inline {
+      background: var(--panel-2);
+      padding: 1px 6px;
+      border-radius: 4px;
+      font-family: var(--mono);
+      font-size: 12px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Массовое обновление specialization + working-schedule</h1>
+  <p class="sub">
+    Открой эту страницу, будучи авторизованным на
+    <code class="inline">sbof-iam-prom.omega.sbrf.ru</code>, чтобы браузер подложил куки.
+    Если страницу открыть с <code class="inline">file://</code> или с другого домена —
+    запросы упадут на CORS/аутентификации. В этом случае используй версию-скрипт в консоли DevTools.
+  </p>
+
+  <label for="input">Список пользователей (JS/JSON, можно без обрамляющих <code class="inline">[ ]</code>):</label>
+  <textarea id="input" spellcheck="false" placeholder='[
+  { "login": "1731853", "timeZone": "3", "grade": "7" },
+  { "login": "1737543", "timeZone": "2", "grade": "8" }
+]'></textarea>
+
+  <div class="row" style="margin-top: 12px;">
+    <button id="run">Запустить</button>
+    <button id="clear" class="secondary" type="button">Очистить результаты</button>
+    <span id="progress" class="muted"></span>
+  </div>
+
+  <details>
+    <summary>Правила маппинга</summary>
+    <div class="note">
+      <b>specialization</b>: grade=7 → <code class="inline">["EXPERT"]</code>,
+      grade=8 → <code class="inline">["MENTOR"]</code>,
+      grade=0 / пусто / отсутствует / иное → <code class="inline">[]</code>.<br />
+      <b>working-schedule</b>: по локальному времени 09:00–18:00, обед 14:00–16:00 (пн–пт).
+      На API уходит в UTC — вычитается <code class="inline">timeZone</code> часов.
+      Пример для tz=3: workStart 06:00:00, lunchStart 11:00:00, lunchEnd 13:00:00, workEnd 15:00:00.
+    </div>
+  </details>
+
+  <div id="log" aria-label="Лог выполнения"></div>
+  <div id="results"></div>
+
+<script>
+(() => {
+  const BASE_URL =
+    "https://sbof-iam-prom.omega.sbrf.ru/core/api/constructor-user-service/v1/users";
+
+  const $ = (id) => document.getElementById(id);
+  const logEl = $("log");
+  const resultsEl = $("results");
+  const progressEl = $("progress");
+  const runBtn = $("run");
+
+  const pad = (n) => String(n).padStart(2, "0");
+  const escapeHtml = (s) =>
+    String(s ?? "").replace(/[&<>"']/g, (c) => ({
+      "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
+    }[c]));
+
+  const log = (msg, cls = "") => {
+    const line = document.createElement("div");
+    if (cls) line.className = cls;
+    line.textContent = msg;
+    logEl.appendChild(line);
+    logEl.scrollTop = logEl.scrollHeight;
+  };
+
+  const gradeToSpecializations = (grade) => {
+    const g = String(grade ?? "").trim();
+    if (g === "7") return ["EXPERT"];
+    if (g === "8") return ["MENTOR"];
+    return [];
+  };
+
+  const toUtc = (time, tzOffsetHours) => {
+    const [h, m, s] = time.split(":").map(Number);
+    let total = h * 60 + m - Math.round(Number(tzOffsetHours) || 0) * 60;
+    total = ((total % 1440) + 1440) % 1440;
+    return `${pad(Math.floor(total / 60))}:${pad(total % 60)}:${pad(s || 0)}`;
+  };
+
+  const buildSchedule = (tz) => {
+    const workStart = toUtc("09:00:00", tz);
+    const workEnd = toUtc("18:00:00", tz);
+    const lunchStart = toUtc("14:00:00", tz);
+    const lunchEnd = toUtc("16:00:00", tz);
+    return [1, 2, 3, 4, 5].map((dayOfWeek) => ({
+      dayOfWeek, workStart, workEnd, lunchStart, lunchEnd,
+    }));
+  };
+
+  const patchJson = async (url, body) => {
+    const res = await fetch(url, {
+      method: "PATCH",
+      credentials: "include",
+      headers: { "Content-Type": "application/json", Accept: "application/json" },
+      body: JSON.stringify(body),
+    });
+    let text = "";
+    try { text = await res.text(); } catch (_) {}
+    return { ok: res.ok, status: res.status, body: text };
+  };
+
+  // Принимаем и JSON, и JS-синтаксис (ключи без кавычек, одинарные кавычки, trailing commas),
+  // а также случай, когда пользователь пастит только содержимое без [].
+  const parseUsers = (raw) => {
+    let s = (raw || "").trim();
+    if (!s) throw new Error("Пустой ввод");
+    if (!s.startsWith("[")) s = "[" + s.replace(/,\s*$/, "") + "]";
+    try { return JSON.parse(s); } catch (_) { /* пробуем как JS */ }
+    // eslint-disable-next-line no-new-func
+    const fn = new Function(`"use strict"; return (${s});`);
+    return fn();
+  };
+
+  const renderTable = (rows) => {
+    const th = (t) => `<th>${t}</th>`;
+    const td = (v, cls = "") => `<td${cls ? ` class="${cls}"` : ""}>${v}</td>`;
+    const statusCls = (s) =>
+      /OK$/.test(s) ? "ok" : (/FAIL|ERR/.test(s) ? "fail" : "warn");
+
+    const body = rows.map((r) => `
+      <tr>
+        ${td(escapeHtml(r.login))}
+        ${td(escapeHtml(r.grade))}
+        ${td(escapeHtml(r.timeZone))}
+        ${td(escapeHtml(r.specialization))}
+        ${td(escapeHtml(r.specStatus), statusCls(r.specStatus))}
+        ${td(escapeHtml(r.scheduleStatus), statusCls(r.scheduleStatus))}
+        ${td(escapeHtml(r.error) || '<span class="muted">—</span>')}
+      </tr>
+    `).join("");
+
+    resultsEl.innerHTML = `
+      <table>
+        <thead>
+          <tr>
+            ${th("login")}${th("grade")}${th("tz")}
+            ${th("specializations")}${th("spec status")}
+            ${th("schedule status")}${th("error")}
+          </tr>
+        </thead>
+        <tbody>${body}</tbody>
+      </table>
+    `;
+  };
+
+  const run = async () => {
+    logEl.textContent = "";
+    resultsEl.innerHTML = "";
+    let users;
+    try {
+      users = parseUsers($("input").value);
+      if (!Array.isArray(users)) throw new Error("Ожидался массив");
+    } catch (e) {
+      log(`Ошибка парсинга ввода: ${e.message}`, "fail");
+      return;
+    }
+    if (users.length === 0) {
+      log("Список пуст", "warn");
+      return;
+    }
+
+    runBtn.disabled = true;
+    progressEl.textContent = `0 / ${users.length}`;
+
+    const report = [];
+    for (let i = 0; i < users.length; i++) {
+      const u = users[i] || {};
+      const { login, timeZone, grade } = u;
+      const row = {
+        login: login ?? "",
+        grade: grade ?? "",
+        timeZone: timeZone ?? "",
+        specialization: "",
+        specStatus: "",
+        scheduleStatus: "",
+        error: "",
+      };
+
+      if (!login) {
+        row.error = "нет login";
+        row.specStatus = "SKIP";
+        row.scheduleStatus = "SKIP";
+        report.push(row);
+        log(`[#${i + 1}] пропущен — нет login`, "fail");
+        progressEl.textContent = `${i + 1} / ${users.length}`;
+        continue;
+      }
+
+      // 1) specialization
+      try {
+        const specs = gradeToSpecializations(grade);
+        row.specialization = specs.length ? specs.join(",") : "—";
+        const r = await patchJson(`${BASE_URL}/${login}/specialization`, {
+          specializations: specs,
+        });
+        row.specStatus = `${r.status} ${r.ok ? "OK" : "FAIL"}`;
+        if (!r.ok) row.error += `spec: ${r.body?.slice(0, 200) || ""}; `;
+      } catch (e) {
+        row.specStatus = "NET ERR";
+        row.error += `spec: ${e.message}; `;
+      }
+
+      // 2) working-schedule
+      try {
+        const schedule = buildSchedule(timeZone);
+        const r = await patchJson(
+          `${BASE_URL}/${login}/working-schedule`,
+          schedule
+        );
+        row.scheduleStatus = `${r.status} ${r.ok ? "OK" : "FAIL"}`;
+        if (!r.ok) row.error += `sch: ${r.body?.slice(0, 200) || ""}; `;
+      } catch (e) {
+        row.scheduleStatus = "NET ERR";
+        row.error += `sch: ${e.message}; `;
+      }
+
+      report.push(row);
+      log(
+        `[${login}] spec ${row.specStatus} (${row.specialization})  |  schedule ${row.scheduleStatus}` +
+        (row.error ? `  ERR: ${row.error}` : ""),
+        row.error ? "fail" : "ok"
+      );
+      progressEl.textContent = `${i + 1} / ${users.length}`;
+      renderTable(report);
+    }
+
+    const okCount = report.filter(
+      (r) => /OK$/.test(r.specStatus) && /OK$/.test(r.scheduleStatus)
+    ).length;
+    log(
+      `\nГотово. Полностью OK: ${okCount} / ${report.length}`,
+      okCount === report.length ? "ok" : "warn"
+    );
+    window.__usersUpdateReport = report;
+    runBtn.disabled = false;
+  };
+
+  $("run").addEventListener("click", run);
+  $("clear").addEventListener("click", () => {
+    logEl.textContent = "";
+    resultsEl.innerHTML = "";
+    progressEl.textContent = "";
+  });
+})();
+</script>
+</body>
+</html>
