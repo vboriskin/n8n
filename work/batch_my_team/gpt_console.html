@@ -1,0 +1,110 @@
+(function () {
+  if (document.getElementById("batch-tool")) return;
+
+  const container = document.createElement("div");
+  container.id = "batch-tool";
+  container.style = `
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    width: 500px;
+    height: 600px;
+    background: #111827;
+    color: white;
+    z-index: 999999;
+    border-radius: 12px;
+    padding: 12px;
+    box-shadow: 0 0 20px rgba(0,0,0,0.5);
+    font-family: monospace;
+  `;
+
+  container.innerHTML = `
+    <div style="display:flex; justify-content:space-between; margin-bottom:8px;">
+      <b>Batch Tool</b>
+      <button id="closeTool">✖</button>
+    </div>
+    <textarea id="usersInput" style="width:100%; height:200px;">[
+{ login: "1731853", timeZone: "3", grade: "7" },
+{ login: "1737543", timeZone: "2", grade: "8" }
+]</textarea>
+    <button id="runBtn">▶ Запустить</button>
+    <pre id="log" style="height:300px; overflow:auto; background:#000; margin-top:10px;"></pre>
+  `;
+
+  document.body.appendChild(container);
+
+  document.getElementById("closeTool").onclick = () => container.remove();
+
+  const log = (msg) => {
+    const el = document.getElementById("log");
+    el.textContent += msg + "\\n";
+    el.scrollTop = el.scrollHeight;
+  };
+
+  function normalizeGrade(g) {
+    if (!g) return [];
+    if (g == "7") return ["EXPERT"];
+    if (g == "8") return ["MENTOR"];
+    return [];
+  }
+
+  function shift(hour, tz) {
+    let h = hour - tz;
+    if (h < 0) h += 24;
+    return String(h).padStart(2, "0") + ":00:00";
+  }
+
+  function buildSchedule(tz) {
+    tz = Number(tz);
+    const days = [1,2,3,4,5];
+    return days.map(d => ({
+      dayOfWeek: d,
+      workStart: shift(9, tz),
+      workEnd: shift(18, tz),
+      lunchStart: shift(14, tz),
+      lunchEnd: shift(16, tz)
+    }));
+  }
+
+  async function patch(url, body) {
+    const r = await fetch(url, {
+      method: "PATCH",
+      credentials: "include",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body)
+    });
+
+    if (!r.ok) throw new Error(r.status);
+    return r.text();
+  }
+
+  document.getElementById("runBtn").onclick = async () => {
+    let users;
+
+    try {
+      users = eval(document.getElementById("usersInput").value);
+    } catch (e) {
+      return log("❌ Ошибка JSON");
+    }
+
+    for (const u of users) {
+      try {
+        const spec = normalizeGrade(u.grade);
+
+        await patch(
+          `/core/api/constructor-user-service/v1/users/${u.login}/specialization`,
+          { specializations: spec }
+        );
+
+        await patch(
+          `/core/api/constructor-user-service/v1/users/${u.login}/working-schedule`,
+          buildSchedule(u.timeZone)
+        );
+
+        log(`✅ ${u.login}`);
+      } catch (e) {
+        log(`❌ ${u.login} error`);
+      }
+    }
+  };
+})();
