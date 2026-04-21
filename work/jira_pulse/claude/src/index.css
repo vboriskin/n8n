@@ -1,0 +1,76 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  @apply bg-ink-50 text-ink-900 antialiased;
+  font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
+}
+
+.dark body {
+  @apply bg-ink-950 text-ink-100;
+}
+
+/* Scrollbar polish (webkit only — Electron is chromium) */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-thumb {
+  @apply bg-ink-300/70 dark:bg-ink-700/70 rounded-full;
+}
+::-webkit-scrollbar-thumb:hover {
+  @apply bg-ink-400 dark:bg-ink-600;
+}
+::-webkit-scrollbar-track {
+  @apply bg-transparent;
+}
+
+/* Shimmer (loading skeletons) */
+.shimmer {
+  background: linear-gradient(
+    90deg,
+    rgba(148, 163, 184, 0.12) 0%,
+    rgba(148, 163, 184, 0.26) 50%,
+    rgba(148, 163, 184, 0.12) 100%
+  );
+  background-size: 800px 100%;
+  @apply animate-shimmer;
+}
+
+/* Form inputs — consistent look */
+.tp-input {
+  @apply w-full rounded-xl border border-ink-200 bg-white px-3 py-2 text-sm
+         placeholder:text-ink-400 shadow-sm transition
+         focus:border-brand-500 focus:outline-none focus:ring-4 focus:ring-brand-500/10
+         dark:border-ink-700 dark:bg-ink-900 dark:text-ink-100 dark:placeholder:text-ink-500;
+}
+
+.tp-label {
+  @apply mb-1.5 block text-xs font-medium uppercase tracking-wide text-ink-500 dark:text-ink-400;
+}
+
+.tp-button {
+  @apply inline-flex items-center gap-2 rounded-xl bg-brand-600 px-4 py-2 text-sm font-medium
+         text-white shadow-sm transition hover:bg-brand-700 active:scale-[0.98]
+         disabled:cursor-not-allowed disabled:opacity-60;
+}
+
+.tp-button-secondary {
+  @apply inline-flex items-center gap-2 rounded-xl border border-ink-200 bg-white px-4 py-2 text-sm
+         font-medium text-ink-700 shadow-sm transition hover:bg-ink-50 active:scale-[0.98]
+         dark:border-ink-700 dark:bg-ink-900 dark:text-ink-200 dark:hover:bg-ink-800
+         disabled:cursor-not-allowed disabled:opacity-60;
+}
+
+/* Sticky section header with a subtle backdrop blur */
+.tp-sticky-header {
+  @apply sticky top-0 z-10 -mx-6 border-b border-ink-200/60 bg-ink-50/80 px-6 py-3
+         backdrop-blur-md dark:border-ink-800 dark:bg-ink-950/80;
+}
