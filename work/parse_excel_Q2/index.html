@@ -1,0 +1,182 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Анализ плана доработок Q2</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="app">
+      <header class="app-header">
+        <h1>Анализ плана доработок Q2</h1>
+        <p class="subtitle">Локальное standalone-приложение для визуализации Excel-плана по релизам и scope.</p>
+      </header>
+
+      <section class="panel" id="upload-panel">
+        <h2>Загрузка данных</h2>
+        <div class="upload-actions">
+          <label class="btn primary" for="file-input">Выбрать .xlsx файл</label>
+          <input id="file-input" type="file" accept=".xlsx" />
+          <button class="btn" id="load-default-btn">Попробовать загрузить plan.xlsx рядом с приложением</button>
+        </div>
+        <p class="hint">Если автоматическая загрузка невозможна из-за ограничений браузера, используйте кнопку выбора файла.</p>
+        <div id="messages" class="messages"></div>
+      </section>
+
+      <section class="panel" id="global-filters-panel">
+        <h2>Глобальные фильтры</h2>
+        <div class="filters-grid">
+          <div class="filter-item">
+            <label for="filter-team">Команда</label>
+            <select id="filter-team"></select>
+          </div>
+          <div class="filter-item">
+            <label for="filter-scope">Scope</label>
+            <select id="filter-scope"></select>
+          </div>
+          <div class="filter-item">
+            <label for="filter-release">Наличие релиза</label>
+            <select id="filter-release"></select>
+          </div>
+          <div class="filter-item">
+            <label for="filter-worktype">Тип работ</label>
+            <select id="filter-worktype"></select>
+          </div>
+        </div>
+        <div class="filters-actions">
+          <button class="btn" id="reset-filters-btn">Сбросить фильтры</button>
+          <button class="btn" id="export-all-btn">Экспорт текущей выборки (все задачи) в CSV</button>
+        </div>
+      </section>
+
+      <section class="panel" id="summary-panel">
+        <h2>Summary Dashboard</h2>
+        <div class="cards" id="summary-cards"></div>
+      </section>
+
+      <section class="panel" id="releases-panel">
+        <h2>Срез по релизам</h2>
+        <div class="release-grid">
+          <article class="release-card" id="release-120-card">
+            <h3>Релиз 1.20</h3>
+            <div class="metric" id="release-120-total">0 задач</div>
+            <div class="split-grid">
+              <div>
+                <h4>Типы работ</h4>
+                <div id="release-120-worktypes"></div>
+              </div>
+              <div>
+                <h4>Команды</h4>
+                <div id="release-120-teams"></div>
+              </div>
+            </div>
+          </article>
+          <article class="release-card" id="release-121-card">
+            <h3>Релиз 1.21</h3>
+            <div class="metric" id="release-121-total">0 задач</div>
+            <div class="split-grid">
+              <div>
+                <h4>Типы работ</h4>
+                <div id="release-121-worktypes"></div>
+              </div>
+              <div>
+                <h4>Команды</h4>
+                <div id="release-121-teams"></div>
+              </div>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <section class="panel" id="unassigned-panel">
+        <h2>Без релиза</h2>
+        <div class="table-filters">
+          <div class="filter-item">
+            <label for="unassigned-scope-filter">Scope</label>
+            <select id="unassigned-scope-filter"></select>
+          </div>
+          <div class="filter-item">
+            <label for="unassigned-team-filter">Команда</label>
+            <select id="unassigned-team-filter"></select>
+          </div>
+          <div class="filter-item">
+            <label for="unassigned-category-filter">Категория</label>
+            <select id="unassigned-category-filter"></select>
+          </div>
+          <button class="btn" id="export-unassigned-btn">Экспорт "Без релиза" в CSV</button>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Команда</th>
+                <th>Категория</th>
+                <th>Описание</th>
+                <th>Scope</th>
+                <th>Релиз 1.20</th>
+                <th>Релиз 1.21</th>
+                <th>Комментарий</th>
+              </tr>
+            </thead>
+            <tbody id="unassigned-table-body"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="panel" id="questionable-panel">
+        <h2>Под вопросом (scope = ?)</h2>
+        <button class="btn" id="export-questionable-btn">Экспорт "Под вопросом" в CSV</button>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Команда</th>
+                <th>Категория</th>
+                <th>Описание</th>
+                <th>Релиз 1.20</th>
+                <th>Релиз 1.21</th>
+                <th>Типы работ</th>
+                <th>Комментарий</th>
+              </tr>
+            </thead>
+            <tbody id="questionable-table-body"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="panel" id="teams-panel">
+        <h2>Команды</h2>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Команда</th>
+                <th>Всего</th>
+                <th>ДА</th>
+                <th>НЕТ</th>
+                <th>?</th>
+                <th>Релиз 1.20</th>
+                <th>Релиз 1.21</th>
+                <th>Без релиза</th>
+                <th>Разработка</th>
+                <th>Тестирование</th>
+                <th>Аналитика</th>
+                <th>Внедрение</th>
+              </tr>
+            </thead>
+            <tbody id="teams-table-body"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="panel" id="diagnostics-panel">
+        <h2>Диагностика</h2>
+        <div id="diagnostics-content" class="diagnostics-content"></div>
+      </section>
+    </div>
+
+    <script src="vendor/xlsx.full.min.js"></script>
+    <script src="app.js"></script>
+  </body>
+</html>
