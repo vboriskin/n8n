@@ -1,0 +1,713 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>СКУД Аналитика</title>
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+  <style>
+    :root {
+      --bg: #f7f8fb;
+      --card: #ffffff;
+      --text: #1f2937;
+      --muted: #6b7280;
+      --accent: #0f766e;
+      --border: #e5e7eb;
+      --warn: #b45309;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: "Segoe UI", "Noto Sans", sans-serif;
+      background: linear-gradient(180deg, #eef8f6 0%, var(--bg) 40%);
+      color: var(--text);
+    }
+
+    .container {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+
+    h1 {
+      margin: 0 0 12px;
+      font-size: 28px;
+    }
+
+    .sub {
+      margin: 0 0 20px;
+      color: var(--muted);
+    }
+
+    .panel {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 14px;
+      margin-bottom: 16px;
+      box-shadow: 0 4px 16px rgba(15, 118, 110, 0.05);
+    }
+
+    .row {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    label {
+      font-size: 14px;
+      color: var(--muted);
+    }
+
+    input[type="file"],
+    input[type="text"],
+    select,
+    button {
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 8px 10px;
+      font-size: 14px;
+      background: #fff;
+    }
+
+    button {
+      cursor: pointer;
+      border-color: #b7e3de;
+      background: #e6f8f5;
+      color: #0f5e58;
+      font-weight: 600;
+    }
+
+    button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 10px;
+    }
+
+    .metric {
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 10px;
+      background: #fff;
+    }
+
+    .metric .k {
+      color: var(--muted);
+      font-size: 12px;
+      margin-bottom: 6px;
+    }
+
+    .metric .v {
+      font-weight: 700;
+      font-size: 18px;
+    }
+
+    .employee-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      margin-bottom: 14px;
+      overflow: hidden;
+    }
+
+    .employee-shell {
+      border-left: 4px solid #cbd5e1;
+    }
+
+    .employee-shell.warning {
+      border-left-color: #ea580c;
+      background: #fff7ed;
+    }
+
+    .employee-shell.danger {
+      border-left-color: #dc2626;
+      background: #fef2f2;
+    }
+
+    .employee-shell summary {
+      list-style: none;
+      cursor: pointer;
+      padding: 14px;
+    }
+
+    .employee-shell summary::-webkit-details-marker {
+      display: none;
+    }
+
+    .employee-head {
+      display: flex;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .employee-name {
+      font-size: 20px;
+      font-weight: 700;
+    }
+
+    .employee-kpis {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .employee-kpi {
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: #ffffff;
+      min-width: 140px;
+      padding: 8px 10px;
+    }
+
+    .employee-kpi .k {
+      display: block;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+      color: var(--muted);
+      margin-bottom: 4px;
+    }
+
+    .employee-kpi .v {
+      font-size: 18px;
+      font-weight: 700;
+      color: #0b5f59;
+    }
+
+    .employee-kpi.time-ok .v {
+      color: #166534;
+    }
+
+    .employee-kpi.time-warning .v {
+      color: #c2410c;
+    }
+
+    .employee-kpi.time-danger .v {
+      color: #b91c1c;
+    }
+
+    .employee-content {
+      padding: 0 14px 14px;
+    }
+
+    .employee-toggle-note {
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 6px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 14px;
+    }
+
+    th, td {
+      text-align: left;
+      padding: 8px;
+      border-bottom: 1px solid var(--border);
+      vertical-align: top;
+    }
+
+    th {
+      color: var(--muted);
+      font-weight: 600;
+      font-size: 12px;
+      letter-spacing: 0.02em;
+      text-transform: uppercase;
+    }
+
+    details {
+      background: #fafafa;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 8px;
+    }
+
+    details summary {
+      cursor: pointer;
+      color: #0f5e58;
+      font-weight: 600;
+    }
+
+    .break-item {
+      font-size: 13px;
+      padding: 4px 0;
+      border-bottom: 1px dashed #ddd;
+    }
+
+    .break-item:last-child { border-bottom: none; }
+
+    tr.day-low td {
+      background: #fef2f2;
+      border-top: 1px solid #dc2626;
+      border-bottom: 1px solid #dc2626;
+    }
+
+    tr.day-low td:first-child {
+      border-left: 1px solid #dc2626;
+    }
+
+    tr.day-low td:last-child {
+      border-right: 1px solid #dc2626;
+    }
+
+    .status {
+      color: var(--warn);
+      font-size: 14px;
+    }
+
+    .muted {
+      color: var(--muted);
+    }
+
+    @media (max-width: 720px) {
+      .employee-name { font-size: 17px; }
+      table { font-size: 13px; }
+      th, td { padding: 6px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>СКУД Аналитика</h1>
+    <p class="sub">Загрузите Excel с колонками: EventTime, EntryExit, LastName, FirstName, MiddleName</p>
+
+    <div class="panel">
+      <div class="row">
+        <label>
+          Файл .xlsx:
+          <input id="fileInput" type="file" accept=".xlsx,.xls" />
+        </label>
+
+        <label>
+          Поиск сотрудника:
+          <input id="filterInput" type="text" placeholder="Фамилия Имя" />
+        </label>
+
+        <label>
+          Сортировка:
+          <select id="sortSelect">
+            <option value="name-asc">ФИО (А-Я)</option>
+            <option value="name-desc">ФИО (Я-А)</option>
+            <option value="time-desc">Ср. время (больше)</option>
+            <option value="time-asc">Ср. время (меньше)</option>
+          </select>
+        </label>
+
+        <button id="exportBtn" disabled>Экспорт JSON</button>
+      </div>
+      <p id="status" class="status"></p>
+    </div>
+
+    <div id="globalSummary" class="panel" style="display:none;"></div>
+    <div id="employees"></div>
+  </div>
+
+  <script>
+    const fileInput = document.getElementById("fileInput");
+    const filterInput = document.getElementById("filterInput");
+    const sortSelect = document.getElementById("sortSelect");
+    const exportBtn = document.getElementById("exportBtn");
+    const statusEl = document.getElementById("status");
+    const globalSummaryEl = document.getElementById("globalSummary");
+    const employeesEl = document.getElementById("employees");
+
+    let computedData = null;
+    const MIN_DAY_FOR_AVG_MS = 3 * 60 * 60 * 1000;
+
+    function pad2(n) {
+      return String(n).padStart(2, "0");
+    }
+
+    function formatDateKey(date) {
+      return `${date.getFullYear()}-${pad2(date.getMonth() + 1)}-${pad2(date.getDate())}`;
+    }
+
+    function isWeekendDate(date) {
+      const day = date.getDay();
+      return day === 0 || day === 6;
+    }
+
+    function formatTime(date) {
+      return `${pad2(date.getHours())}:${pad2(date.getMinutes())}:${pad2(date.getSeconds())}`;
+    }
+
+    function formatDuration(ms) {
+      if (!Number.isFinite(ms) || ms <= 0) return "00:00:00";
+      const total = Math.floor(ms / 1000);
+      const h = Math.floor(total / 3600);
+      const m = Math.floor((total % 3600) / 60);
+      const s = total % 60;
+      return `${pad2(h)}:${pad2(m)}:${pad2(s)}`;
+    }
+
+    function avg(values) {
+      if (!values.length) return 0;
+      return values.reduce((acc, v) => acc + v, 0) / values.length;
+    }
+
+    function parseExcelDate(value) {
+      if (value instanceof Date && !Number.isNaN(value.getTime())) {
+        return value;
+      }
+
+      if (typeof value === "number") {
+        const parsed = XLSX.SSF.parse_date_code(value);
+        if (parsed) {
+          return new Date(parsed.y, parsed.m - 1, parsed.d, parsed.H || 0, parsed.M || 0, parsed.S || 0);
+        }
+      }
+
+      if (typeof value === "string" && value.trim()) {
+        const d = new Date(value.trim());
+        if (!Number.isNaN(d.getTime())) return d;
+      }
+
+      return null;
+    }
+
+    function toFio(row) {
+      return [row.LastName, row.FirstName, row.MiddleName]
+        .map((s) => (s == null ? "" : String(s).trim()))
+        .filter(Boolean)
+        .join(" ");
+    }
+
+    function computeDay(events) {
+      const sorted = [...events].sort((a, b) => a.time - b.time);
+      if (sorted.length < 2) return null;
+
+      const pairs = [];
+      let openEntry = null;
+
+      for (const e of sorted) {
+        if (e.type === "Вход") {
+          openEntry = e.time;
+        } else if (e.type === "Выход") {
+          if (openEntry && e.time > openEntry) {
+            pairs.push({ entry: openEntry, exit: e.time });
+            openEntry = null;
+          }
+        }
+      }
+
+      if (!pairs.length) return null;
+
+      const totalMs = pairs.reduce((sum, p) => sum + (p.exit - p.entry), 0);
+      const breaks = [];
+
+      for (let i = 0; i < pairs.length - 1; i++) {
+        const start = pairs[i].exit;
+        const end = pairs[i + 1].entry;
+        if (end > start) {
+          breaks.push({ start, end, durationMs: end - start });
+        }
+      }
+
+      return {
+        totalMs,
+        eventsCount: sorted.length,
+        firstEvent: sorted[0],
+        lastEvent: sorted[sorted.length - 1],
+        breaks,
+        breaksCount: breaks.length,
+        avgBreakMs: breaks.length ? avg(breaks.map((b) => b.durationMs)) : 0
+      };
+    }
+
+    function computeFromRows(rows) {
+      const grouped = new Map();
+
+      for (const row of rows) {
+        const type = row.EntryExit == null ? "" : String(row.EntryExit).trim();
+        if (type !== "Вход" && type !== "Выход") continue;
+
+        const fio = toFio(row);
+        if (!fio) continue;
+
+        const time = parseExcelDate(row.EventTime);
+        if (!time) continue;
+
+        const dayKey = formatDateKey(time);
+
+        if (!grouped.has(fio)) grouped.set(fio, new Map());
+        const byDay = grouped.get(fio);
+        if (!byDay.has(dayKey)) byDay.set(dayKey, []);
+        byDay.get(dayKey).push({ type, time });
+      }
+
+      const employees = [];
+
+      for (const [fio, byDay] of grouped.entries()) {
+        const days = [];
+
+        for (const [day, events] of byDay.entries()) {
+          const dayResult = computeDay(events);
+          if (!dayResult) continue;
+          const isWeekend = isWeekendDate(events[0].time);
+
+          days.push({
+            day,
+            isWeekend,
+            totalMs: dayResult.totalMs,
+            isShortDay: dayResult.totalMs < MIN_DAY_FOR_AVG_MS,
+            eventsCount: dayResult.eventsCount,
+            firstEvent: dayResult.firstEvent,
+            lastEvent: dayResult.lastEvent,
+            breaksCount: dayResult.breaksCount,
+            breaks: dayResult.breaks,
+            avgBreakMs: dayResult.avgBreakMs
+          });
+        }
+
+        if (!days.length) continue;
+
+        days.sort((a, b) => a.day.localeCompare(b.day));
+        const workDays = days.filter((d) => !d.isWeekend);
+        const avgEligibleWorkDays = workDays.filter((d) => !d.isShortDay);
+        const weekendDaysCount = days.filter((d) => d.isWeekend).length;
+
+        employees.push({
+          fio,
+          days,
+          weekendDaysCount,
+          avgDaysCount: avgEligibleWorkDays.length,
+          avgTimeMs: avg(avgEligibleWorkDays.map((d) => d.totalMs)),
+          avgBreaksCount: avg(avgEligibleWorkDays.map((d) => d.breaksCount)),
+          avgBreakMs: avg(avgEligibleWorkDays.map((d) => d.avgBreakMs))
+        });
+      }
+
+      const allWorkDays = employees.flatMap((e) =>
+        e.days
+          .filter((d) => !d.isWeekend && !d.isShortDay)
+          .map((d) => ({ ...d, fio: e.fio }))
+      );
+
+      const globalSummary = {
+        totalEmployees: employees.length,
+        avgTimeMs: avg(allWorkDays.map((d) => d.totalMs)),
+        avgBreaksCount: avg(allWorkDays.map((d) => d.breaksCount)),
+        avgBreakMs: avg(allWorkDays.map((d) => d.avgBreakMs))
+      };
+
+      return { employees, globalSummary };
+    }
+
+    function renderGlobalSummary(summary) {
+      globalSummaryEl.style.display = "block";
+      globalSummaryEl.innerHTML = `
+        <h2 style="margin-top:0;">Глобальная сводка</h2>
+        <div class="summary-grid">
+          <div class="metric"><div class="k">Всего сотрудников</div><div class="v">${summary.totalEmployees}</div></div>
+          <div class="metric"><div class="k">Среднее время в офисе (раб. день)</div><div class="v">${formatDuration(summary.avgTimeMs)}</div></div>
+          <div class="metric"><div class="k">Среднее число перерывов (раб. день)</div><div class="v">${summary.avgBreaksCount.toFixed(2)}</div></div>
+          <div class="metric"><div class="k">Средняя длительность перерыва (раб. день)</div><div class="v">${formatDuration(summary.avgBreakMs)}</div></div>
+        </div>
+      `;
+    }
+
+    function renderEmployees() {
+      employeesEl.innerHTML = "";
+      if (!computedData) return;
+
+      const filter = filterInput.value.trim().toLowerCase();
+      const sortMode = sortSelect.value;
+
+      let list = [...computedData.employees];
+
+      if (filter) {
+        list = list.filter((e) => e.fio.toLowerCase().includes(filter));
+      }
+
+      list.sort((a, b) => {
+        if (sortMode === "time-desc") return b.avgTimeMs - a.avgTimeMs;
+        if (sortMode === "time-asc") return a.avgTimeMs - b.avgTimeMs;
+        if (sortMode === "name-desc") return b.fio.localeCompare(a.fio, "ru");
+        return a.fio.localeCompare(b.fio, "ru");
+      });
+
+      if (!list.length) {
+        employeesEl.innerHTML = '<div class="panel muted">Нет данных по текущему фильтру.</div>';
+        return;
+      }
+
+      for (const employee of list) {
+        const card = document.createElement("div");
+        card.className = "employee-card";
+        const avgHours = employee.avgTimeMs / (1000 * 60 * 60);
+        const severity = avgHours < 8 ? "danger" : avgHours < 9 ? "warning" : "ok";
+        const timeClass = severity === "danger" ? "time-danger" : severity === "warning" ? "time-warning" : "time-ok";
+        const workDays = employee.days.filter((d) => !d.isWeekend);
+        const weekendDays = employee.days.filter((d) => d.isWeekend);
+
+        const buildRowsHtml = (days) => days.map((d) => {
+          const breaksHtml = d.breaks.length
+            ? d.breaks.map((b) => `
+                <div class="break-item">
+                  ${formatTime(b.start)} - ${formatTime(b.end)} (${formatDuration(b.durationMs)})
+                </div>
+              `).join("")
+            : '<div class="break-item muted">Нет перерывов</div>';
+          const firstEventText = `${formatTime(d.firstEvent.time)} (${d.firstEvent.type})`;
+          const lastEventText = `${formatTime(d.lastEvent.time)} (${d.lastEvent.type})`;
+
+          return `
+            <tr class="${d.isShortDay ? "day-low" : ""}">
+              <td>${d.day}</td>
+              <td>${firstEventText}</td>
+              <td>${lastEventText}</td>
+              <td>${formatDuration(d.totalMs)}</td>
+              <td>${d.eventsCount}</td>
+              <td>${d.breaksCount}</td>
+              <td>
+                <details>
+                  <summary>Показать перерывы</summary>
+                  <div style="margin-top:8px;">${breaksHtml}</div>
+                </details>
+              </td>
+            </tr>
+          `;
+        }).join("");
+        const workRowsHtml = buildRowsHtml(workDays);
+        const weekendRowsHtml = buildRowsHtml(weekendDays);
+
+        card.innerHTML = `
+          <details class="employee-shell ${severity}">
+            <summary>
+              <div class="employee-head">
+                <div class="employee-name">${employee.fio}</div>
+                <div class="employee-kpis">
+                  <div class="employee-kpi ${timeClass}">
+                    <span class="k">Ср. время (раб. дни)</span>
+                    <span class="v">${employee.avgDaysCount ? formatDuration(employee.avgTimeMs) : "н/д"}</span>
+                  </div>
+                  <div class="employee-kpi">
+                    <span class="k">Ср. перерывов (раб. дни)</span>
+                    <span class="v">${employee.avgDaysCount ? employee.avgBreaksCount.toFixed(2) : "н/д"}</span>
+                  </div>
+                  <div class="employee-kpi">
+                    <span class="k">Ср. перерыв (раб. дни)</span>
+                    <span class="v">${employee.avgDaysCount ? formatDuration(employee.avgBreakMs) : "н/д"}</span>
+                  </div>
+                  <div class="employee-kpi">
+                    <span class="k">Выходных дней</span>
+                    <span class="v">${employee.weekendDaysCount}</span>
+                  </div>
+                </div>
+              </div>
+              <div class="employee-toggle-note">Нажмите, чтобы развернуть детали по дням</div>
+            </summary>
+            <div class="employee-content">
+              <h3 style="margin: 6px 0 8px;">Рабочие дни</h3>
+              <table>
+                <thead>
+                  <tr>
+                    <th>Дата</th>
+                    <th>Первое событие</th>
+                    <th>Последнее событие</th>
+                    <th>Время в офисе</th>
+                    <th>Событий</th>
+                    <th>Перерывов</th>
+                    <th>Детали</th>
+                  </tr>
+                </thead>
+                <tbody>${workRowsHtml || '<tr><td colspan="7" class="muted">Нет рабочих дней</td></tr>'}</tbody>
+              </table>
+              <h3 style="margin: 14px 0 8px;">Выходные дни</h3>
+              <table>
+                <thead>
+                  <tr>
+                    <th>Дата</th>
+                    <th>Первое событие</th>
+                    <th>Последнее событие</th>
+                    <th>Время в офисе</th>
+                    <th>Событий</th>
+                    <th>Перерывов</th>
+                    <th>Детали</th>
+                  </tr>
+                </thead>
+                <tbody>${weekendRowsHtml || '<tr><td colspan="7" class="muted">Нет выходных дней</td></tr>'}</tbody>
+              </table>
+              <p class="muted" style="margin:10px 0 0;">Дни с временем в офисе менее 03:00:00 выделены красным и исключены из расчёта средних.</p>
+            </div>
+          </details>
+        `;
+
+        employeesEl.appendChild(card);
+      }
+    }
+
+    function exportJson() {
+      if (!computedData) return;
+      const payload = JSON.stringify(computedData, null, 2);
+      const blob = new Blob([payload], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "skud_analytics.json";
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    async function parseFile(file) {
+      statusEl.textContent = "Обработка файла...";
+      employeesEl.innerHTML = "";
+      globalSummaryEl.style.display = "none";
+      computedData = null;
+      exportBtn.disabled = true;
+
+      try {
+        const buffer = await file.arrayBuffer();
+        const workbook = XLSX.read(buffer, { type: "array", cellDates: true, raw: true });
+        const firstSheet = workbook.SheetNames[0];
+        if (!firstSheet) throw new Error("Не найден лист в Excel-файле");
+
+        const sheet = workbook.Sheets[firstSheet];
+        const rows = XLSX.utils.sheet_to_json(sheet, {
+          defval: "",
+          raw: true
+        });
+
+        if (!rows.length) throw new Error("Файл пустой или не содержит строк");
+
+        computedData = computeFromRows(rows);
+
+        renderGlobalSummary(computedData.globalSummary);
+        renderEmployees();
+
+        exportBtn.disabled = false;
+        statusEl.textContent = `Готово. Сотрудников: ${computedData.globalSummary.totalEmployees}`;
+      } catch (err) {
+        statusEl.textContent = `Ошибка: ${err.message || err}`;
+      }
+    }
+
+    fileInput.addEventListener("change", (e) => {
+      const file = e.target.files && e.target.files[0];
+      if (file) parseFile(file);
+    });
+
+    filterInput.addEventListener("input", () => {
+      if (computedData) renderEmployees();
+    });
+
+    sortSelect.addEventListener("change", () => {
+      if (computedData) renderEmployees();
+    });
+
+    exportBtn.addEventListener("click", exportJson);
+  </script>
+</body>
+</html>
