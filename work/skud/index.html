@@ -1,0 +1,556 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>СКУД Аналитика</title>
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+  <style>
+    :root {
+      --bg: #f7f8fb;
+      --card: #ffffff;
+      --text: #1f2937;
+      --muted: #6b7280;
+      --accent: #0f766e;
+      --border: #e5e7eb;
+      --warn: #b45309;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: "Segoe UI", "Noto Sans", sans-serif;
+      background: linear-gradient(180deg, #eef8f6 0%, var(--bg) 40%);
+      color: var(--text);
+    }
+
+    .container {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+
+    h1 {
+      margin: 0 0 12px;
+      font-size: 28px;
+    }
+
+    .sub {
+      margin: 0 0 20px;
+      color: var(--muted);
+    }
+
+    .panel {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 14px;
+      margin-bottom: 16px;
+      box-shadow: 0 4px 16px rgba(15, 118, 110, 0.05);
+    }
+
+    .row {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    label {
+      font-size: 14px;
+      color: var(--muted);
+    }
+
+    input[type="file"],
+    input[type="text"],
+    select,
+    button {
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 8px 10px;
+      font-size: 14px;
+      background: #fff;
+    }
+
+    button {
+      cursor: pointer;
+      border-color: #b7e3de;
+      background: #e6f8f5;
+      color: #0f5e58;
+      font-weight: 600;
+    }
+
+    button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 10px;
+    }
+
+    .metric {
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 10px;
+      background: #fff;
+    }
+
+    .metric .k {
+      color: var(--muted);
+      font-size: 12px;
+      margin-bottom: 6px;
+    }
+
+    .metric .v {
+      font-weight: 700;
+      font-size: 18px;
+    }
+
+    .employee-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 14px;
+      margin-bottom: 14px;
+    }
+
+    .employee-head {
+      display: flex;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+
+    .employee-name {
+      font-size: 20px;
+      font-weight: 700;
+    }
+
+    .employee-avg {
+      font-size: 13px;
+      color: var(--muted);
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 14px;
+    }
+
+    th, td {
+      text-align: left;
+      padding: 8px;
+      border-bottom: 1px solid var(--border);
+      vertical-align: top;
+    }
+
+    th {
+      color: var(--muted);
+      font-weight: 600;
+      font-size: 12px;
+      letter-spacing: 0.02em;
+      text-transform: uppercase;
+    }
+
+    details {
+      background: #fafafa;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 8px;
+    }
+
+    details summary {
+      cursor: pointer;
+      color: #0f5e58;
+      font-weight: 600;
+    }
+
+    .break-item {
+      font-size: 13px;
+      padding: 4px 0;
+      border-bottom: 1px dashed #ddd;
+    }
+
+    .break-item:last-child { border-bottom: none; }
+
+    .status {
+      color: var(--warn);
+      font-size: 14px;
+    }
+
+    .muted {
+      color: var(--muted);
+    }
+
+    @media (max-width: 720px) {
+      .employee-name { font-size: 17px; }
+      table { font-size: 13px; }
+      th, td { padding: 6px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>СКУД Аналитика</h1>
+    <p class="sub">Загрузите Excel с колонками: EventTime, EntryExit, LastName, FirstName, MiddleName</p>
+
+    <div class="panel">
+      <div class="row">
+        <label>
+          Файл .xlsx:
+          <input id="fileInput" type="file" accept=".xlsx,.xls" />
+        </label>
+
+        <label>
+          Фильтр сотрудника:
+          <input id="filterInput" type="text" placeholder="Фамилия Имя" />
+        </label>
+
+        <label>
+          Сортировка:
+          <select id="sortSelect">
+            <option value="name-asc">ФИО (А-Я)</option>
+            <option value="name-desc">ФИО (Я-А)</option>
+          </select>
+        </label>
+
+        <button id="exportBtn" disabled>Экспорт JSON</button>
+      </div>
+      <p id="status" class="status"></p>
+    </div>
+
+    <div id="globalSummary" class="panel" style="display:none;"></div>
+    <div id="employees"></div>
+  </div>
+
+  <script>
+    const fileInput = document.getElementById("fileInput");
+    const filterInput = document.getElementById("filterInput");
+    const sortSelect = document.getElementById("sortSelect");
+    const exportBtn = document.getElementById("exportBtn");
+    const statusEl = document.getElementById("status");
+    const globalSummaryEl = document.getElementById("globalSummary");
+    const employeesEl = document.getElementById("employees");
+
+    let computedData = null;
+
+    function pad2(n) {
+      return String(n).padStart(2, "0");
+    }
+
+    function formatDateKey(date) {
+      return `${date.getFullYear()}-${pad2(date.getMonth() + 1)}-${pad2(date.getDate())}`;
+    }
+
+    function formatTime(date) {
+      return `${pad2(date.getHours())}:${pad2(date.getMinutes())}:${pad2(date.getSeconds())}`;
+    }
+
+    function formatDuration(ms) {
+      if (!Number.isFinite(ms) || ms <= 0) return "00:00:00";
+      const total = Math.floor(ms / 1000);
+      const h = Math.floor(total / 3600);
+      const m = Math.floor((total % 3600) / 60);
+      const s = total % 60;
+      return `${pad2(h)}:${pad2(m)}:${pad2(s)}`;
+    }
+
+    function avg(values) {
+      if (!values.length) return 0;
+      return values.reduce((acc, v) => acc + v, 0) / values.length;
+    }
+
+    function parseExcelDate(value) {
+      if (value instanceof Date && !Number.isNaN(value.getTime())) {
+        return value;
+      }
+
+      if (typeof value === "number") {
+        const parsed = XLSX.SSF.parse_date_code(value);
+        if (parsed) {
+          return new Date(parsed.y, parsed.m - 1, parsed.d, parsed.H || 0, parsed.M || 0, parsed.S || 0);
+        }
+      }
+
+      if (typeof value === "string" && value.trim()) {
+        const d = new Date(value.trim());
+        if (!Number.isNaN(d.getTime())) return d;
+      }
+
+      return null;
+    }
+
+    function toFio(row) {
+      return [row.LastName, row.FirstName, row.MiddleName]
+        .map((s) => (s == null ? "" : String(s).trim()))
+        .filter(Boolean)
+        .join(" ");
+    }
+
+    function computeDay(events) {
+      const sorted = [...events].sort((a, b) => a.time - b.time);
+      if (sorted.length < 2) return null;
+
+      const pairs = [];
+      let openEntry = null;
+
+      for (const e of sorted) {
+        if (e.type === "Вход") {
+          openEntry = e.time;
+        } else if (e.type === "Выход") {
+          if (openEntry && e.time > openEntry) {
+            pairs.push({ entry: openEntry, exit: e.time });
+            openEntry = null;
+          }
+        }
+      }
+
+      if (!pairs.length) return null;
+
+      const totalMs = pairs.reduce((sum, p) => sum + (p.exit - p.entry), 0);
+      const breaks = [];
+
+      for (let i = 0; i < pairs.length - 1; i++) {
+        const start = pairs[i].exit;
+        const end = pairs[i + 1].entry;
+        if (end > start) {
+          breaks.push({ start, end, durationMs: end - start });
+        }
+      }
+
+      return {
+        totalMs,
+        eventsCount: sorted.length,
+        breaks,
+        breaksCount: breaks.length,
+        avgBreakMs: breaks.length ? avg(breaks.map((b) => b.durationMs)) : 0
+      };
+    }
+
+    function computeFromRows(rows) {
+      const grouped = new Map();
+
+      for (const row of rows) {
+        const type = row.EntryExit == null ? "" : String(row.EntryExit).trim();
+        if (type !== "Вход" && type !== "Выход") continue;
+
+        const fio = toFio(row);
+        if (!fio) continue;
+
+        const time = parseExcelDate(row.EventTime);
+        if (!time) continue;
+
+        const dayKey = formatDateKey(time);
+
+        if (!grouped.has(fio)) grouped.set(fio, new Map());
+        const byDay = grouped.get(fio);
+        if (!byDay.has(dayKey)) byDay.set(dayKey, []);
+        byDay.get(dayKey).push({ type, time });
+      }
+
+      const employees = [];
+
+      for (const [fio, byDay] of grouped.entries()) {
+        const days = [];
+
+        for (const [day, events] of byDay.entries()) {
+          const dayResult = computeDay(events);
+          if (!dayResult) continue;
+
+          days.push({
+            day,
+            totalMs: dayResult.totalMs,
+            eventsCount: dayResult.eventsCount,
+            breaksCount: dayResult.breaksCount,
+            breaks: dayResult.breaks,
+            avgBreakMs: dayResult.avgBreakMs
+          });
+        }
+
+        if (!days.length) continue;
+
+        days.sort((a, b) => a.day.localeCompare(b.day));
+
+        employees.push({
+          fio,
+          days,
+          avgTimeMs: avg(days.map((d) => d.totalMs)),
+          avgBreaksCount: avg(days.map((d) => d.breaksCount)),
+          avgBreakMs: avg(days.map((d) => d.avgBreakMs))
+        });
+      }
+
+      const allDays = employees.flatMap((e) => e.days.map((d) => ({ ...d, fio: e.fio })));
+
+      const globalSummary = {
+        totalEmployees: employees.length,
+        avgTimeMs: avg(allDays.map((d) => d.totalMs)),
+        avgBreaksCount: avg(allDays.map((d) => d.breaksCount)),
+        avgBreakMs: avg(allDays.map((d) => d.avgBreakMs))
+      };
+
+      return { employees, globalSummary };
+    }
+
+    function renderGlobalSummary(summary) {
+      globalSummaryEl.style.display = "block";
+      globalSummaryEl.innerHTML = `
+        <h2 style="margin-top:0;">Глобальная сводка</h2>
+        <div class="summary-grid">
+          <div class="metric"><div class="k">Всего сотрудников</div><div class="v">${summary.totalEmployees}</div></div>
+          <div class="metric"><div class="k">Среднее время в офисе (день)</div><div class="v">${formatDuration(summary.avgTimeMs)}</div></div>
+          <div class="metric"><div class="k">Среднее число перерывов (день)</div><div class="v">${summary.avgBreaksCount.toFixed(2)}</div></div>
+          <div class="metric"><div class="k">Средняя длительность перерыва (день)</div><div class="v">${formatDuration(summary.avgBreakMs)}</div></div>
+        </div>
+      `;
+    }
+
+    function renderEmployees() {
+      employeesEl.innerHTML = "";
+      if (!computedData) return;
+
+      const filter = filterInput.value.trim().toLowerCase();
+      const sortMode = sortSelect.value;
+
+      let list = [...computedData.employees];
+
+      if (filter) {
+        list = list.filter((e) => e.fio.toLowerCase().includes(filter));
+      }
+
+      list.sort((a, b) => {
+        if (sortMode === "name-desc") return b.fio.localeCompare(a.fio, "ru");
+        return a.fio.localeCompare(b.fio, "ru");
+      });
+
+      if (!list.length) {
+        employeesEl.innerHTML = '<div class="panel muted">Нет данных по текущему фильтру.</div>';
+        return;
+      }
+
+      for (const employee of list) {
+        const card = document.createElement("div");
+        card.className = "employee-card";
+
+        const rowsHtml = employee.days.map((d) => {
+          const breaksHtml = d.breaks.length
+            ? d.breaks.map((b) => `
+                <div class="break-item">
+                  ${formatTime(b.start)} - ${formatTime(b.end)} (${formatDuration(b.durationMs)})
+                </div>
+              `).join("")
+            : '<div class="break-item muted">Нет перерывов</div>';
+
+          return `
+            <tr>
+              <td>${d.day}</td>
+              <td>${formatDuration(d.totalMs)}</td>
+              <td>${d.eventsCount}</td>
+              <td>${d.breaksCount}</td>
+              <td>
+                <details>
+                  <summary>Показать перерывы</summary>
+                  <div style="margin-top:8px;">${breaksHtml}</div>
+                </details>
+              </td>
+            </tr>
+          `;
+        }).join("");
+
+        card.innerHTML = `
+          <div class="employee-head">
+            <div class="employee-name">${employee.fio}</div>
+            <div class="employee-avg">
+              <span>Ср. время: <strong>${formatDuration(employee.avgTimeMs)}</strong></span>
+              <span>Ср. перерывов: <strong>${employee.avgBreaksCount.toFixed(2)}</strong></span>
+              <span>Ср. длит. перерыва: <strong>${formatDuration(employee.avgBreakMs)}</strong></span>
+            </div>
+          </div>
+          <table>
+            <thead>
+              <tr>
+                <th>Дата</th>
+                <th>Время в офисе</th>
+                <th>Событий</th>
+                <th>Перерывов</th>
+                <th>Детали</th>
+              </tr>
+            </thead>
+            <tbody>${rowsHtml}</tbody>
+          </table>
+        `;
+
+        employeesEl.appendChild(card);
+      }
+    }
+
+    function exportJson() {
+      if (!computedData) return;
+      const payload = JSON.stringify(computedData, null, 2);
+      const blob = new Blob([payload], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "skud_analytics.json";
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    async function parseFile(file) {
+      statusEl.textContent = "Обработка файла...";
+      employeesEl.innerHTML = "";
+      globalSummaryEl.style.display = "none";
+      computedData = null;
+      exportBtn.disabled = true;
+
+      try {
+        const buffer = await file.arrayBuffer();
+        const workbook = XLSX.read(buffer, { type: "array", cellDates: true, raw: true });
+        const firstSheet = workbook.SheetNames[0];
+        if (!firstSheet) throw new Error("Не найден лист в Excel-файле");
+
+        const sheet = workbook.Sheets[firstSheet];
+        const rows = XLSX.utils.sheet_to_json(sheet, {
+          defval: "",
+          raw: true
+        });
+
+        if (!rows.length) throw new Error("Файл пустой или не содержит строк");
+
+        computedData = computeFromRows(rows);
+
+        renderGlobalSummary(computedData.globalSummary);
+        renderEmployees();
+
+        exportBtn.disabled = false;
+        statusEl.textContent = `Готово. Сотрудников: ${computedData.globalSummary.totalEmployees}`;
+      } catch (err) {
+        statusEl.textContent = `Ошибка: ${err.message || err}`;
+      }
+    }
+
+    fileInput.addEventListener("change", (e) => {
+      const file = e.target.files && e.target.files[0];
+      if (file) parseFile(file);
+    });
+
+    filterInput.addEventListener("input", () => {
+      if (computedData) renderEmployees();
+    });
+
+    sortSelect.addEventListener("change", () => {
+      if (computedData) renderEmployees();
+    });
+
+    exportBtn.addEventListener("click", exportJson);
+  </script>
+</body>
+</html>
